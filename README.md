@@ -16,6 +16,8 @@ This repository contains a beta-ready RDF workbench with:
 
 The project is organized around a practical file-based workflow and supports a useful subset of Turtle, N-Triples, and JSON-LD for education, prototyping, and tool architecture demonstration. Full W3C RDF parsing and full SHACL validation can be integrated later through dedicated adapters.
 
+For a more structured reference guide, see [docs/README.md](docs/README.md).
+
 ## At A Glance
 
 - Core RDF processing library for inspection, validation, conversion, mapping, and visualization
@@ -85,6 +87,7 @@ test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 - [Current Status](#current-status)
 - [Important limitations](#important-limitations)
 - [Author & Contact](#author--contact)
+- [Project Docs](#project-docs)
 
 ---
 
@@ -346,6 +349,10 @@ The Rust implementation follows pattern-equivalent idioms:
 ## Important limitations
 
 This first version intentionally implements a compact RDF parser to keep the repository self-contained and understandable. It is suitable for controlled Turtle/N-Triples examples and educational workflows. For production-grade RDF/JSON-LD/SHACL compliance, replace the parser and validator internals with adapters to mature RDF crates.
+
+## Project Docs
+
+The dedicated documentation hub lives in [docs/README.md](docs/README.md) and covers architecture, supported features, local setup, API endpoints, screenshots, troubleshooting, and release flow.
 
 ---
 

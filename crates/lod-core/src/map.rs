@@ -23,6 +23,7 @@ pub struct MappingService;
 
 impl MappingService {
     pub fn map_csv_to_rdf(&self, req: MappingRequest) -> Result<(), LodError> {
+        // Load the mapping description, then stream CSV rows into RDF triples.
         let yaml = std::fs::read_to_string(&req.mapping_path)?;
         let cfg: MappingConfig = serde_yaml::from_str(&yaml)?;
         let mut reader = csv::Reader::from_path(&req.input_path)?;
@@ -88,6 +89,7 @@ fn expand(term: &str, prefixes: &BTreeMap<String, String>) -> String {
     term.to_string()
 }
 fn slug(s: &str) -> String {
+    // Keep generated subject identifiers readable and filesystem-safe.
     s.trim()
         .chars()
         .map(|c| if c == ' ' || c == '/' { '-' } else { c })

@@ -3,12 +3,15 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Node {
+    /// A resolved IRI node.
     Iri(String),
+    /// A literal value with optional datatype and language tag.
     Literal {
         value: String,
         datatype: Option<String>,
         lang: Option<String>,
     },
+    /// A blank node identifier.
     Blank(String),
 }
 
@@ -27,6 +30,7 @@ pub struct LodGraph {
     pub triples: Vec<Triple>,
 }
 
+/// Node metadata tailored for the browser graph renderer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualizationNode {
     pub id: String,
@@ -37,6 +41,7 @@ pub struct VisualizationNode {
     pub shape: String,
 }
 
+/// Edge metadata tailored for the browser graph renderer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualizationEdge {
     pub id: String,
@@ -45,12 +50,14 @@ pub struct VisualizationEdge {
     pub label: String,
 }
 
+/// Compact graph payload used by the frontend visualizer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualizationGraph {
     pub nodes: Vec<VisualizationNode>,
     pub edges: Vec<VisualizationEdge>,
 }
 
+/// Summary returned by the inspection workflow.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InspectionReport {
     pub triples: usize,
@@ -67,6 +74,7 @@ pub struct InspectionReport {
     pub property_distribution: BTreeMap<String, usize>,
 }
 
+/// A validation issue produced by syntax or IRI checks.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidationIssue {
     pub severity: String,
@@ -74,12 +82,14 @@ pub struct ValidationIssue {
     pub line: Option<usize>,
 }
 
+/// Validation result plus the list of issues found.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidationReport {
     pub conforms: bool,
     pub issues: Vec<ValidationIssue>,
 }
 
+/// File-to-file conversion request used by the CLI and API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConversionRequest {
     pub input_path: String,
@@ -88,6 +98,7 @@ pub struct ConversionRequest {
     pub target_format: Option<String>,
 }
 
+/// RDF inspection request used by the CLI and API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InspectionRequest {
     pub input_path: String,
@@ -95,6 +106,7 @@ pub struct InspectionRequest {
     pub json_output: Option<String>,
 }
 
+/// Validation request used by the CLI and API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidationRequest {
     pub data_graph_path: String,
@@ -102,6 +114,7 @@ pub struct ValidationRequest {
     pub report_path: Option<String>,
 }
 
+/// CSV-to-RDF mapping request.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MappingRequest {
     pub input_path: String,
@@ -110,6 +123,7 @@ pub struct MappingRequest {
     pub output_format: Option<String>,
 }
 
+/// RDF visualization request.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualizationRequest {
     pub input_path: String,

@@ -18,6 +18,8 @@ impl ValidationService {
         report_path: Option<String>,
     ) -> Result<ValidationReport, LodError> {
         let mut issues = Vec::new();
+        // V1 validation keeps the logic deliberately lightweight: parse the
+        // graph, run IRI checks, and optionally emit a note about SHACL.
         match parser::parse_graph(content, fmt) {
             Ok(graph) => {
                 validate_graph(&graph, &mut issues);
@@ -55,6 +57,8 @@ fn is_http_iri(iri: &str) -> bool {
 
 fn validate_graph(graph: &LodGraph, issues: &mut Vec<ValidationIssue>) {
     for (idx, t) in graph.triples.iter().enumerate() {
+        // Each triple is checked independently so errors can be reported with
+        // a simple line number that is useful in the UI.
         if !is_http_iri(&t.predicate) {
             issues.push(ValidationIssue {
                 severity: "Warning".into(),

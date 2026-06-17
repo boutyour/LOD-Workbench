@@ -1,5 +1,6 @@
 use crate::*;
 
+/// Small façade that exposes the core services behind a single entry point.
 pub struct LodWorkbench {
     converter: ConversionService,
     inspector: InspectionService,

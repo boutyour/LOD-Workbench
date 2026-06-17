@@ -13,6 +13,8 @@ impl InspectionService {
             Some(s) => Some(RdfFormat::parse(s)?),
             None => None,
         };
+        // The inspection flow always starts from a graph loaded off disk, then
+        // reuses the same in-memory summary code as the text-based API.
         let graph = parser::read_graph(&req.input_path, fmt)?;
         self.inspect_graph(graph, req.json_output)
     }
@@ -32,6 +34,8 @@ impl InspectionService {
         graph: LodGraph,
         json_output: Option<String>,
     ) -> Result<InspectionReport, LodError> {
+        // Aggregate counts and distributions in one pass so the report stays
+        // cheap even for larger examples.
         let mut subjects = BTreeSet::new();
         let mut predicates = BTreeSet::new();
         let mut objects = BTreeSet::new();
