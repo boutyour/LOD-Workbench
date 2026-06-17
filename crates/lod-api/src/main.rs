@@ -223,6 +223,7 @@ fn api_error(code: StatusCode, error: String) -> axum::response::Response {
 mod tests {
     use super::*;
     use axum::body::to_bytes;
+    use lod_core::{InspectionReport, ValidationReport};
 
     #[tokio::test]
     async fn visualize_text_returns_graph_payload() {
