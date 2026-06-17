@@ -29,7 +29,7 @@ For a more structured reference guide, see [docs/README.md](docs/README.md).
 - Command-line interface for local workflows
 - Web API for integrating RDF features into other tools
 - React/Vite web client with live editing and visualization
-- GitHub Actions automation for Rust checks and web builds
+- GitHub Actions automation for Rust checks, web builds, and Pages previews
 
 ## Quick Start
 
@@ -321,7 +321,7 @@ The Rust implementation follows pattern-equivalent idioms:
 - Core library: stable for the supported RDF subset
 - CLI: functional
 - API: functional
-- Web UI: functional and beta-deployable
+- Web UI: functional and GitHub Pages deployable
 - Tests: passing
 - Release readiness: beta
 

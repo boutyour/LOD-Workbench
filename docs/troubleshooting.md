@@ -8,6 +8,8 @@ This page collects the most common setup and parsing issues.
   on `127.0.0.1:8080`.
 - If you changed the API base URL, update `VITE_API_URL` before starting the
   frontend.
+- If you use the GitHub Pages preview, set the repository variable
+  `VITE_API_URL` to a reachable backend URL before pushing to `beta`.
 
 ## RDF Parsing
 
@@ -36,4 +38,4 @@ This page collects the most common setup and parsing issues.
 - Run `cargo test --workspace` after parser or service changes.
 - Run `npm run build` in `apps/web` after frontend changes.
 - If a workflow behaves unexpectedly, inspect the matching GitHub Actions log
-  for the beta or release job.
+  for the CI or Pages job.
