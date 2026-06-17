@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Build Rust workspace
+        run: cargo build --workspace --release
+
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Build web client
+        working-directory: apps/web
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL }}
+        run: npm run build
+
+      - name: Package Linux binaries
+        run: |
+          mkdir -p release
+          tar -czf "release/lod-workbench-${{ github.ref_name }}-linux-x86_64.tar.gz" -C target/release lod lod-api
+          tar -czf "release/lod-workbench-web-${{ github.ref_name }}.tar.gz" -C apps/web/dist .
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          files: |
+            release/lod-workbench-${{ github.ref_name }}-linux-x86_64.tar.gz
+            release/lod-workbench-web-${{ github.ref_name }}.tar.gz

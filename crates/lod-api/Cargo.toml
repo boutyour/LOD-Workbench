@@ -1,0 +1,21 @@
+[package]
+name = "lod-api"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lod-api"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+lod-core = { path = "../lod-core" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

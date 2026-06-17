@@ -1,0 +1,6 @@
+/target
+**/node_modules
+**/dist
+*.html
+*.json
+.DS_Store

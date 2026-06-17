@@ -1,0 +1,47 @@
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+ex:route-42 a schema:BusTrip ;
+  schema:name "Airport Express" ;
+  schema:provider ex:metro-transit ;
+  schema:departureStation ex:central-station ;
+  schema:arrivalStation ex:airport-terminal ;
+  schema:vehicle ex:bus-12 ;
+  schema:departureTime "2026-06-17T08:30:00Z"^^xsd:dateTime ;
+  schema:arrivalTime "2026-06-17T09:05:00Z"^^xsd:dateTime ;
+  schema:distance "12.4"^^xsd:decimal ;
+  dcterms:subject ex:city-transport .
+
+ex:metro-transit a schema:Organization ;
+  schema:name "Metro Transit" ;
+  schema:areaServed ex:metro-area .
+
+ex:central-station a schema:BusStation ;
+  schema:name "Central Station" ;
+  schema:address ex:central-address .
+
+ex:airport-terminal a schema:BusStation ;
+  schema:name "North Airport Terminal" ;
+  schema:address ex:airport-address .
+
+ex:bus-12 a schema:BusOrCoach ;
+  schema:identifier "BUS-12" ;
+  schema:name "Shuttle 12" ;
+  schema:vehicleConfiguration "Low-floor coach" ;
+  schema:provider ex:metro-transit .
+
+ex:city-transport a schema:Place ;
+  schema:name "City Transport Network" .
+
+ex:metro-area a schema:AdministrativeArea ;
+  schema:name "Metro City" .
+
+ex:central-address a schema:PostalAddress ;
+  schema:streetAddress "1 Main Street" ;
+  schema:addressLocality "Metro City" .
+
+ex:airport-address a schema:PostalAddress ;
+  schema:streetAddress "100 Airport Road" ;
+  schema:addressLocality "Metro City" .

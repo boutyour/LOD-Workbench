@@ -1,0 +1,19 @@
+base_uri: "https://example.org/researcher/"
+subject_column: "id"
+class_uri: "foaf:Person"
+
+prefixes:
+  foaf: "http://xmlns.com/foaf/0.1/"
+  schema: "https://schema.org/"
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+
+columns:
+  name:
+    predicate: "foaf:name"
+    datatype: "xsd:string"
+  email:
+    predicate: "schema:email"
+    datatype: "xsd:string"
+  orcid:
+    predicate: "schema:identifier"
+    datatype: "xsd:string"

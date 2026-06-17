@@ -1,0 +1,57 @@
+use crate::*;
+
+pub struct LodWorkbench {
+    converter: ConversionService,
+    inspector: InspectionService,
+    validator: ValidationService,
+    mapper: MappingService,
+    visualizer: VisualizationService,
+}
+
+impl Default for LodWorkbench {
+    fn default() -> Self {
+        Self {
+            converter: ConversionService,
+            inspector: InspectionService,
+            validator: ValidationService,
+            mapper: MappingService,
+            visualizer: VisualizationService,
+        }
+    }
+}
+
+impl LodWorkbench {
+    pub fn convert(&self, req: ConversionRequest) -> Result<(), LodError> {
+        self.converter.convert(req)
+    }
+    pub fn inspect(&self, req: InspectionRequest) -> Result<InspectionReport, LodError> {
+        self.inspector.inspect(req)
+    }
+    pub fn inspect_content(
+        &self,
+        content: &str,
+        format: RdfFormat,
+        json_output: Option<String>,
+    ) -> Result<InspectionReport, LodError> {
+        self.inspector.inspect_content(content, format, json_output)
+    }
+    pub fn validate(&self, req: ValidationRequest) -> Result<ValidationReport, LodError> {
+        self.validator.validate(req)
+    }
+    pub fn validate_content(
+        &self,
+        content: &str,
+        format: RdfFormat,
+        shapes_graph_path: Option<String>,
+        report_path: Option<String>,
+    ) -> Result<ValidationReport, LodError> {
+        self.validator
+            .validate_content(content, format, shapes_graph_path, report_path)
+    }
+    pub fn map_csv_to_rdf(&self, req: MappingRequest) -> Result<(), LodError> {
+        self.mapper.map_csv_to_rdf(req)
+    }
+    pub fn visualize(&self, req: VisualizationRequest) -> Result<(), LodError> {
+        self.visualizer.visualize(req)
+    }
+}

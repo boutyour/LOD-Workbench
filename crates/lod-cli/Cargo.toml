@@ -1,0 +1,16 @@
+[package]
+name = "lod"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lod"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+lod-core = { path = "../lod-core" }
+serde_json.workspace = true
