@@ -2,7 +2,6 @@
 
 <!-- markdownlint-disable MD013 -->
 [![CI](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml)
-[![Beta deploy](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml/badge.svg?branch=beta)](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **LOD Workbench: A Multi-Utility Toolkit for Linked Open Data Engineering**
@@ -30,7 +29,7 @@ For a more structured reference guide, see [docs/README.md](docs/README.md).
 - Command-line interface for local workflows
 - Web API for integrating RDF features into other tools
 - React/Vite web client with live editing and visualization
-- GitHub Actions automation for CI, beta deploys, and releases
+- GitHub Actions automation for CI, build, and docs checks
 
 ## Quick Start
 
@@ -85,8 +84,6 @@ test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 - [CLI usage](#cli-usage)
 - [API usage](#api-usage)
 - [Web interface](#web-interface)
-- [Beta deployment on GitHub Pages](#beta-deployment-on-github-pages)
-- [Release workflow](#release-workflow)
 - [Enhanced test coverage](#enhanced-test-coverage)
 - [Design patterns used](#design-patterns-used)
 - [Roadmap](#roadmap)
@@ -111,7 +108,7 @@ lod-workbench-rs/
 ├── reports/           # output directory for validation/visualization reports
 ├── scripts/           # helper scripts
 ├── tests/             # integration test data
-├── .github/workflows/ # CI pipeline (GitHub Actions)
+├── .github/workflows/ # single CI pipeline (GitHub Actions)
 ├── rustfmt.toml       # Rust formatting configuration
 ├── Makefile
 └── README.md
@@ -183,9 +180,8 @@ make lint     # format + clippy
 
 ### Tooling and release
 
-- GitHub Actions CI for formatting, linting, build, and tests
-- GitHub Pages beta deployment from the `beta` branch
-- Tagged GitHub Releases for beta, release candidate, and stable snapshots
+- GitHub Actions CI for formatting, linting, build, tests, and docs checks
+- Manual release tagging when you want to publish a snapshot
 
 ---
 
@@ -266,33 +262,6 @@ Open <http://127.0.0.1:5173> in your browser. The web interface focuses on:
 - a graph view with drag, zoom, and SVG export
 - save/download actions for the current text and converted output
 - responsive behavior for desktop and mobile screens
-
-### Beta deployment on GitHub Pages
-
-The web client publishes automatically from the `beta` branch through GitHub
-Pages. Set `VITE_API_URL` to the deployed API endpoint, then push to `beta` or
-run the `Beta Pages` workflow manually. The beta site is frontend-only and
-still needs a reachable API for inspect, validate, convert, and visualize
-actions.
-
-### Release workflow
-
-Use semantic version tags for published snapshots:
-
-- `v0.1.0-beta.2` for beta builds
-- `v0.1.0-rc.1` for release candidates
-- `v0.1.0` for stable releases
-
-Release checklist:
-
-1. Merge target changes into `beta` and verify the beta Pages deployment.
-2. Run the workspace tests locally or in CI.
-3. Create a tag such as `v0.1.0-beta.2`.
-4. Push the tag to GitHub.
-5. The `Release` workflow builds the Rust binaries and web client, then
-   publishes a GitHub Release with downloadable archives.
-
----
 
 ## Enhanced test coverage
 
