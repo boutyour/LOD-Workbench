@@ -11,6 +11,7 @@ quick navigation.
 - [HTTP API](api.md)
 - [Web UI](web.md)
 - [Release](release.md)
+- [Branch Protection](branch-protection.md)
 - [Troubleshooting](troubleshooting.md)
 
 ## Project Overview

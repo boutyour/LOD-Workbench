@@ -1,0 +1,33 @@
+name: Docs
+
+on:
+  push:
+    branches: [main, beta]
+  pull_request:
+    branches: [main, beta]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check Markdown structure
+        run: npx --yes markdownlint-cli2 "README.md" "docs/**/*.md"
+
+      - name: Check Markdown links
+        run: npx --yes lychee --no-progress --verbose --accept 200,429 "README.md" "docs/**/*.md"

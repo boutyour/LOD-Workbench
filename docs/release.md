@@ -18,7 +18,7 @@ beta builds and release snapshots.
 
 - push a tag such as `v0.1.0-beta.2` to trigger the release workflow
 - beta and release-candidate tags are treated as prereleases
-- the workflow builds the Rust workspace and web bundle
+- the release workflow reuses the shared build job from `.github/workflows/reusable-build.yml`
 - release assets include Linux binaries and the web client archive
 
 ## Typical Release Flow
@@ -34,3 +34,9 @@ beta builds and release snapshots.
 - semantic version tags are used for published snapshots
 - beta tags are intended for preview and testing
 - stable tags can be used once the release is ready for wider distribution
+
+## Related Workflows
+
+- `CI` uses the reusable build workflow for linting, build, and test checks
+- `Beta Pages` uses the reusable build workflow and then deploys the web client
+- `Docs` validates Markdown links and structure before documentation changes land

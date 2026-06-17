@@ -1,0 +1,96 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      release_build:
+        description: Build the Rust workspace in release mode.
+        required: false
+        type: boolean
+        default: false
+      upload_pages_artifact:
+        description: Upload the built web app as a GitHub Pages artifact.
+        required: false
+        type: boolean
+        default: false
+      upload_release_artifacts:
+        description: Package and upload release archives for GitHub Release publication.
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Rust artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --workspace -- -D warnings
+
+      - name: Build Rust workspace
+        if: ${{ !inputs.release_build }}
+        run: cargo build --workspace
+
+      - name: Build Rust workspace (release)
+        if: ${{ inputs.release_build }}
+        run: cargo build --workspace --release
+
+      - name: Run tests
+        run: cargo test --workspace
+
+      - name: Test CLI help
+        if: ${{ !inputs.release_build }}
+        run: cargo run -p lod -- --help
+
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Build web app
+        working-directory: apps/web
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL }}
+        run: npm run build
+
+      - name: Upload Pages artifact
+        if: ${{ inputs.upload_pages_artifact }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+      - name: Package Linux binaries
+        if: ${{ inputs.upload_release_artifacts }}
+        run: |
+          mkdir -p release
+          tar -czf "release/lod-workbench-${{ github.ref_name }}-linux-x86_64.tar.gz" -C target/release lod lod-api
+          tar -czf "release/lod-workbench-web-${{ github.ref_name }}.tar.gz" -C apps/web/dist .
+
+      - name: Upload release artifacts
+        if: ${{ inputs.upload_release_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: release/*

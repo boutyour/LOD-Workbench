@@ -14,87 +14,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-
-      - name: Cache Rust artifacts
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check formatting
-        run: cargo fmt --check
-
-      - name: Clippy
-        run: cargo clippy --workspace -- -D warnings
-
-      - name: Build Rust workspace
-        run: cargo build --workspace
-
-      - name: Run tests
-        run: cargo test --workspace
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-
-      - name: Install web dependencies
-        working-directory: apps/web
-        run: npm ci
-
-      - name: Build web client
-        working-directory: apps/web
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL }}
-        run: npm run build
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      release_build: true
+      upload_release_artifacts: true
 
   build-and-release:
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust artifacts
-        uses: Swatinem/rust-cache@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-
-      - name: Build Rust workspace
-        run: cargo build --workspace --release
-
-      - name: Install web dependencies
-        working-directory: apps/web
-        run: npm ci
-
-      - name: Build web client
-        working-directory: apps/web
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL }}
-        run: npm run build
-
-      - name: Package Linux binaries
-        run: |
-          mkdir -p release
-          tar -czf "release/lod-workbench-${{ github.ref_name }}-linux-x86_64.tar.gz" -C target/release lod lod-api
-          tar -czf "release/lod-workbench-web-${{ github.ref_name }}.tar.gz" -C apps/web/dist .
+          name: release-assets
+          path: release
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2

@@ -359,6 +359,7 @@ The dedicated documentation hub lives in [docs/README.md](docs/README.md) and li
 - [HTTP API](docs/api.md)
 - [Web UI](docs/web.md)
 - [Release](docs/release.md)
+- [Branch Protection](docs/branch-protection.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
 It also keeps the screenshots and general overview in one place.
