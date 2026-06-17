@@ -233,7 +233,7 @@ The beta site is the frontend only. It still needs a reachable API endpoint for 
 
 Use semantic version tags for published snapshots:
 
-- `v0.1.0-beta.1` for beta builds
+- `v0.1.0-beta.2` for beta builds
 - `v0.1.0-rc.1` for release candidates
 - `v0.1.0` for stable releases
 
@@ -241,7 +241,7 @@ Release checklist:
 
 1. Merge the target changes into `beta` and verify the beta Pages deployment.
 2. Run the workspace tests locally or in CI.
-3. Create a tag such as `v0.1.0-beta.1`.
+3. Create a tag such as `v0.1.0-beta.2`.
 4. Push the tag to GitHub.
 5. The `Release` workflow builds the Rust binaries and web client, then publishes a GitHub Release with downloadable archives.
 
