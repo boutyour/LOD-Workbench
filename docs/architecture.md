@@ -1,5 +1,7 @@
 # Architecture
 
+<!-- markdownlint-disable MD013 -->
+
 LOD Workbench is organized as a small layered workspace:
 
 - `crates/lod-core` contains the parser, model, and shared services
@@ -11,7 +13,8 @@ LOD Workbench is organized as a small layered workspace:
 
 1. RDF text is loaded from a file, the API, or the editor.
 2. The parser builds an in-memory `LodGraph`.
-3. Inspection, validation, conversion, mapping, and visualization reuse that graph.
+3. Inspection, validation, conversion, mapping, and visualization reuse that
+   graph.
 4. The API returns structured JSON responses.
 5. The frontend turns the graph payload into an interactive SVG view.
 
@@ -38,3 +41,5 @@ LOD Workbench is organized as a small layered workspace:
 - Facade and service entry points: `crates/lod-core/src/facade.rs`
 - API handlers: `crates/lod-api/src/main.rs`
 - Graph renderer: `apps/web/src/components/GraphViewer.jsx`
+
+<!-- markdownlint-enable MD013 -->

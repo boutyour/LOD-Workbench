@@ -93,9 +93,21 @@ fn check_iri(iri: &str, line: usize, issues: &mut Vec<ValidationIssue>) {
 }
 fn validation_html(report: &ValidationReport) -> String {
     let issues = report.issues.len();
-    let violations = report.issues.iter().filter(|i| i.severity.eq_ignore_ascii_case("Violation")).count();
-    let warnings = report.issues.iter().filter(|i| i.severity.eq_ignore_ascii_case("Warning")).count();
-    let infos = report.issues.iter().filter(|i| i.severity.eq_ignore_ascii_case("Info")).count();
+    let violations = report
+        .issues
+        .iter()
+        .filter(|i| i.severity.eq_ignore_ascii_case("Violation"))
+        .count();
+    let warnings = report
+        .issues
+        .iter()
+        .filter(|i| i.severity.eq_ignore_ascii_case("Warning"))
+        .count();
+    let infos = report
+        .issues
+        .iter()
+        .filter(|i| i.severity.eq_ignore_ascii_case("Info"))
+        .count();
     let rows = if report.issues.is_empty() {
         String::from(r#"<tr><td colspan="3" class="empty">No validation issues were found.</td></tr>"#)
     } else {

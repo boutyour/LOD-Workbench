@@ -10,11 +10,7 @@ use lod_core::{
     VisualizationGraph, VisualizationNode,
 };
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeSet,
-    net::SocketAddr,
-    sync::Arc,
-};
+use std::{collections::BTreeSet, net::SocketAddr, sync::Arc};
 use tower_http::cors::CorsLayer;
 
 #[derive(Clone)]

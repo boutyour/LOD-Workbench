@@ -1,10 +1,12 @@
 # LOD Workbench RS
 
+<!-- markdownlint-disable MD013 -->
 [![CI](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml)
 [![Beta deploy](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml/badge.svg?branch=beta)](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**LOD Workbench: A Multi-Utility Toolkit for Linked Open Data Engineering** implemented primarily in Rust.
+**LOD Workbench: A Multi-Utility Toolkit for Linked Open Data Engineering**
+implemented primarily in Rust.
 
 This repository contains a beta-ready RDF workbench with:
 
@@ -14,13 +16,17 @@ This repository contains a beta-ready RDF workbench with:
 - a React/Vite web UI
 - sample RDF, CSV, YAML, and HTML report assets
 
-The project is organized around a practical file-based workflow and supports a useful subset of Turtle, N-Triples, and JSON-LD for education, prototyping, and tool architecture demonstration. Full W3C RDF parsing and full SHACL validation can be integrated later through dedicated adapters.
+The project is organized around a practical file-based workflow and supports a
+useful subset of Turtle, N-Triples, and JSON-LD for education, prototyping, and
+tool architecture demonstration. Full W3C RDF parsing and full SHACL
+validation can be integrated later through dedicated adapters.
 
 For a more structured reference guide, see [docs/README.md](docs/README.md).
 
 ## At A Glance
 
-- Core RDF processing library for inspection, validation, conversion, mapping, and visualization
+- Core RDF processing library for inspection, validation, conversion, mapping,
+  and visualization
 - Command-line interface for local workflows
 - Web API for integrating RDF features into other tools
 - React/Vite web client with live editing and visualization
@@ -263,7 +269,11 @@ Open <http://127.0.0.1:5173> in your browser. The web interface focuses on:
 
 ### Beta deployment on GitHub Pages
 
-The web client publishes automatically from the `beta` branch through GitHub Pages. Set `VITE_API_URL` to the deployed API endpoint, then push to `beta` or run the `Beta Pages` workflow manually. The beta site is frontend-only and still needs a reachable API for inspect, validate, convert, and visualize actions.
+The web client publishes automatically from the `beta` branch through GitHub
+Pages. Set `VITE_API_URL` to the deployed API endpoint, then push to `beta` or
+run the `Beta Pages` workflow manually. The beta site is frontend-only and
+still needs a reachable API for inspect, validate, convert, and visualize
+actions.
 
 ### Release workflow
 
@@ -279,7 +289,8 @@ Release checklist:
 2. Run the workspace tests locally or in CI.
 3. Create a tag such as `v0.1.0-beta.2`.
 4. Push the tag to GitHub.
-5. The `Release` workflow builds the Rust binaries and web client, then publishes a GitHub Release with downloadable archives.
+5. The `Release` workflow builds the Rust binaries and web client, then
+   publishes a GitHub Release with downloadable archives.
 
 ---
 
@@ -288,7 +299,7 @@ Release checklist:
 Test suite: **33 tests** (up from 2) covering:
 
 | Category | Tests |
-|---|---|
+| --- | --- |
 | Turtle parsing (prefixes, triples, blank nodes, `a` shorthand, typed literals, lang tags, escaped literals, comments) | 12 |
 | N-Triples parsing | 2 |
 | JSON-LD parsing | 1 |
@@ -307,7 +318,8 @@ The Rust implementation follows pattern-equivalent idioms:
 
 - **Facade**: `LodWorkbench` exposes a simple API to CLI and Web.
 - **Adapter**: parser/writer functions isolate the RDF processing layer.
-- **Strategy-like services**: `ConversionService`, `InspectionService`, `ValidationService`, `MappingService`, `VisualizationService`.
+- **Strategy-like services**: `ConversionService`, `InspectionService`,
+  `ValidationService`, `MappingService`, `VisualizationService`.
 - **Builder-like output generation**: HTML reports and visualization pages.
 - **DTOs**: request and report structs in `model.rs`.
 - **Result-based error handling**: centralized `LodError` enum.
@@ -352,7 +364,8 @@ This first version intentionally implements a compact RDF parser to keep the rep
 
 ## Project Docs
 
-The dedicated documentation hub lives in [docs/README.md](docs/README.md) and links to the focused pages below:
+The dedicated documentation hub lives in [docs/README.md](docs/README.md) and
+links to the focused pages below:
 
 - [Architecture](docs/architecture.md)
 - [CLI Reference](docs/cli.md)
@@ -363,6 +376,8 @@ The dedicated documentation hub lives in [docs/README.md](docs/README.md) and li
 - [Troubleshooting](docs/troubleshooting.md)
 
 It also keeps the screenshots and general overview in one place.
+
+<!-- markdownlint-enable MD013 -->
 
 ---
 

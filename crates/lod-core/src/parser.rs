@@ -73,8 +73,7 @@ fn parse_turtle_rdf(content: &str) -> Result<LodGraph, LodError> {
             continue;
         }
         if trimmed.starts_with("@base") || trimmed.to_ascii_uppercase().starts_with("BASE") {
-            parse_base(trimmed, &mut graph.base)
-                .map_err(|e| LodError::RdfParsing(format!("line {line_no}: {e}")))?;
+            parse_base(trimmed, &mut graph.base).map_err(|e| LodError::RdfParsing(format!("line {line_no}: {e}")))?;
             continue;
         }
         let triples = parse_turtle_statement(trimmed, &graph.prefixes, graph.base.as_deref(), &mut blank_id_seq)
@@ -143,7 +142,14 @@ fn parse_turtle_statement(
     parse_predicate_object_list(subject.clone(), rest.trim(), prefixes, base, blank_id_seq, &mut triples)?;
 
     for clause in clauses {
-        parse_predicate_object_list(subject.clone(), clause.trim(), prefixes, base, blank_id_seq, &mut triples)?;
+        parse_predicate_object_list(
+            subject.clone(),
+            clause.trim(),
+            prefixes,
+            base,
+            blank_id_seq,
+            &mut triples,
+        )?;
     }
 
     if triples.is_empty() {
@@ -220,11 +226,7 @@ fn take_token(input: &str) -> Option<(&str, &str)> {
                     return Some((&input[..end], &input[end..]));
                 }
             }
-            c if !in_string
-                && !in_iri
-                && depth == 0
-                && (c.is_whitespace() || matches!(c, ';' | ',' | '.')) =>
-            {
+            c if !in_string && !in_iri && depth == 0 && (c.is_whitespace() || matches!(c, ';' | ',' | '.')) => {
                 return Some((&input[..idx], &input[idx..]));
             }
             _ => {}
@@ -425,7 +427,13 @@ fn parse_object(
 ) -> Result<Node, String> {
     let o = trim_trailing_terminators(o);
     // Choose the parser based on the syntactic form of the object token.
-    if contains_bare_whitespace(o) && !o.starts_with('<') && !o.starts_with('"') && !o.starts_with('[') && !o.starts_with('(') && !o.starts_with("_:") {
+    if contains_bare_whitespace(o)
+        && !o.starts_with('<')
+        && !o.starts_with('"')
+        && !o.starts_with('[')
+        && !o.starts_with('(')
+        && !o.starts_with("_:")
+    {
         return Err("unexpected whitespace in object".into());
     }
     if o.starts_with('[') {
@@ -647,11 +655,7 @@ fn take_object_fragment(input: &str) -> Option<(&str, &str)> {
                     return Some((&input[start..end], &input[end..]));
                 }
             }
-            c if !in_string
-                && !in_iri
-                && depth == 0
-                && (c.is_whitespace() || matches!(c, ';' | ',' | '.')) =>
-            {
+            c if !in_string && !in_iri && depth == 0 && (c.is_whitespace() || matches!(c, ';' | ',' | '.')) => {
                 if i == start {
                     start = i + ch.len_utf8();
                     continue;
@@ -751,7 +755,11 @@ fn trim_iri(token: &str) -> Option<&str> {
 }
 
 fn resolve_iri(iri: &str, base: Option<&str>) -> String {
-    if iri.starts_with("http://") || iri.starts_with("https://") || iri.starts_with("urn:") || iri.starts_with("mailto:") {
+    if iri.starts_with("http://")
+        || iri.starts_with("https://")
+        || iri.starts_with("urn:")
+        || iri.starts_with("mailto:")
+    {
         return iri.to_string();
     }
     if let Some(base) = base {

@@ -1,5 +1,7 @@
 # CLI Reference
 
+<!-- markdownlint-disable MD013 -->
+
 The CLI is the quickest way to run the toolkit locally.
 
 ## Command Summary
@@ -21,19 +23,22 @@ cargo run -p lod -- inspect examples/data.ttl
 Validate a graph and write a report:
 
 ```bash
-cargo run -p lod -- validate examples/data.ttl examples/shapes.ttl --report reports/report.html
+cargo run -p lod -- validate examples/data.ttl examples/shapes.ttl \
+  --report reports/report.html
 ```
 
 Convert RDF into N-Triples:
 
 ```bash
-cargo run -p lod -- convert examples/data.ttl /tmp/data.nt --from turtle --to n-triples
+cargo run -p lod -- convert examples/data.ttl /tmp/data.nt --from turtle \
+  --to n-triples
 ```
 
 Map CSV to RDF:
 
 ```bash
-cargo run -p lod -- map examples/researchers.csv examples/mapping.yml /tmp/researchers.ttl --to turtle
+cargo run -p lod -- map examples/researchers.csv examples/mapping.yml \
+  /tmp/researchers.ttl --to turtle
 ```
 
 Visualize RDF as HTML:
@@ -52,3 +57,5 @@ shell scripts or by people exploring the project by hand.
 - CLI argument parsing lives in `crates/lod-cli/src/main.rs`
 - The actual work is delegated to `LodWorkbench`
 - Format detection and conversion logic stay in the core crate
+
+<!-- markdownlint-enable MD013 -->

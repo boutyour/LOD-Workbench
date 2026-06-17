@@ -1,5 +1,7 @@
 # Release
 
+<!-- markdownlint-disable MD013 -->
+
 LOD Workbench uses branches, tags, GitHub Actions, and GitHub Pages to publish
 beta builds and release snapshots.
 
@@ -18,7 +20,8 @@ beta builds and release snapshots.
 
 - push a tag such as `v0.1.0-beta.2` to trigger the release workflow
 - beta and release-candidate tags are treated as prereleases
-- the release workflow reuses the shared build job from `.github/workflows/reusable-build.yml`
+- the release workflow reuses the shared build job from
+  `.github/workflows/reusable-build.yml`
 - release assets include Linux binaries and the web client archive
 
 ## Typical Release Flow
@@ -39,4 +42,7 @@ beta builds and release snapshots.
 
 - `CI` uses the reusable build workflow for linting, build, and test checks
 - `Beta Pages` uses the reusable build workflow and then deploys the web client
-- `Docs` validates Markdown links and structure before documentation changes land
+- `Docs` validates Markdown links and structure before documentation changes
+  land
+
+<!-- markdownlint-enable MD013 -->
