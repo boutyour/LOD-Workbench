@@ -1,0 +1,137 @@
+<svg width="1016" height="566" viewBox="0 0 1016 566" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LOD Workbench graph preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#94a3b8" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .ui { font-family: Inter, Segoe UI, Arial, sans-serif; fill: #334155; }
+      .small { fill: #64748b; font-size: 11px; }
+      .nodeText { fill: #1f2937; font-size: 10px; font-weight: 700; }
+      .edgeLabel { fill: #94a3b8; font-size: 8px; }
+    </style>
+  </defs>
+
+  <rect width="1016" height="566" fill="#eef2ff"/>
+  <rect x="0" y="0" width="1016" height="42" fill="#f3f4f6"/>
+  <rect x="0" y="42" width="1016" height="524" fill="url(#bg)"/>
+
+  <text x="12" y="26" class="ui" font-size="18" font-weight="700"><tspan fill="#4f46e5">32</tspan> triples</text>
+  <circle cx="880" cy="20" r="5" fill="#4f46e5"/>
+  <text x="892" y="24" class="ui small">IRI</text>
+  <rect x="922" y="14" width="10" height="10" transform="rotate(45 927 19)" fill="#d97706"/>
+  <text x="938" y="24" class="ui small">Blank</text>
+  <rect x="972" y="14" width="10" height="10" rx="1.5" fill="#059669"/>
+  <text x="986" y="24" class="ui small">Literal</text>
+
+  <rect x="12" y="46" width="992" height="440" rx="10" fill="#ffffff" stroke="#dbe2ea" filter="url(#shadow)"/>
+
+  <!-- edges -->
+  <path d="M 506 240 C 420 210, 350 180, 296 132" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 448 220, 414 206, 384 290" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 548 210, 578 170, 610 120" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 584 220, 648 190, 730 176" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 602 242, 674 250, 754 252" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 610 120 C 636 142, 664 158, 704 176" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 730 176 C 784 176, 832 170, 880 130" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 730 176 C 772 202, 810 224, 860 196" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 730 176 C 766 262, 792 300, 822 344" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 384 250, 300 244, 220 220" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 392 326, 352 372, 320 416" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 530 298, 544 340, 552 384" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 562 308, 590 364, 600 420" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 468 318, 452 368, 446 430" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 504 338, 502 390, 502 454" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+  <path d="M 506 240 C 592 300, 624 340, 640 386" fill="none" stroke="#d6dee9" stroke-width="1.2"/>
+
+  <!-- nodes -->
+  <circle cx="506" cy="240" r="12" fill="#4f46e5"/>
+  <text x="486" y="257" class="ui nodeText">route-42</text>
+
+  <circle cx="610" cy="120" r="12" fill="#4f46e5"/>
+  <text x="592" y="137" class="ui nodeText">city-shuttle</text>
+
+  <circle cx="730" cy="176" r="12" fill="#4f46e5"/>
+  <text x="712" y="193" class="ui nodeText">metro-transit</text>
+
+  <rect x="276" y="120" width="30" height="22" rx="5" fill="#059669"/>
+  <text x="266" y="148" class="ui nodeText">"12.4"</text>
+
+  <rect x="746" y="166" width="22" height="22" transform="rotate(45 757 177)" fill="#d97706"/>
+  <text x="744" y="198" class="ui nodeText">b4</text>
+
+  <circle cx="822" cy="344" r="12" fill="#4f46e5"/>
+  <text x="805" y="361" class="ui nodeText">Person</text>
+
+  <rect x="878" y="118" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="868" y="146" class="ui nodeText">"Amina El Idrissi"</text>
+
+  <rect x="898" y="186" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="886" y="214" class="ui nodeText">"Operations lead"</text>
+
+  <rect x="836" y="236" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="826" y="264" class="ui nodeText">"1990-04-15"</text>
+
+  <rect x="366" y="78" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="338" y="106" class="ui nodeText">"Metro Transit"</text>
+
+  <rect x="220" y="150" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="214" y="178" class="ui nodeText">"Airport Express"</text>
+
+  <circle cx="384" cy="290" r="12" fill="#4f46e5"/>
+  <text x="370" y="307" class="ui nodeText">BusTrip</text>
+
+  <rect x="162" y="272" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="154" y="300" class="ui nodeText">"Wi-Fi"</text>
+
+  <rect x="538" y="272" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="506" y="300" class="ui nodeText">"USB charging"</text>
+
+  <rect x="590" y="346" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="548" y="374" class="ui nodeText">"Wheelchair access"</text>
+
+  <circle cx="446" cy="430" r="12" fill="#4f46e5"/>
+  <text x="428" y="447" class="ui nodeText">blank</text>
+
+  <circle cx="502" cy="454" r="12" fill="#4f46e5"/>
+  <text x="492" y="472" class="ui nodeText">nil</text>
+
+  <rect x="620" y="384" width="31" height="22" rx="5" fill="#059669"/>
+  <text x="590" y="412" class="ui nodeText">"customer support"</text>
+
+  <!-- a few edge labels -->
+  <text x="406" y="202" class="ui edgeLabel">departureTime</text>
+  <text x="575" y="214" class="ui edgeLabel">operator</text>
+  <text x="652" y="248" class="ui edgeLabel">member</text>
+  <text x="710" y="310" class="ui edgeLabel">birthDate</text>
+  <text x="414" y="322" class="ui edgeLabel">type</text>
+  <text x="306" y="256" class="ui edgeLabel">name</text>
+  <text x="602" y="94" class="ui edgeLabel">type</text>
+
+  <!-- toolbar -->
+  <rect x="962" y="282" width="34" height="34" rx="8" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="972" y="304" class="ui" font-size="18">⛶</text>
+  <rect x="962" y="322" width="34" height="34" rx="8" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="972" y="344" class="ui" font-size="18">+</text>
+  <rect x="962" y="362" width="34" height="34" rx="8" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="972" y="384" class="ui" font-size="18">-</text>
+  <rect x="962" y="402" width="34" height="34" rx="8" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="972" y="424" class="ui" font-size="18">↺</text>
+  <rect x="962" y="442" width="34" height="34" rx="8" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="970" y="464" class="ui" font-size="18">⤒</text>
+
+  <rect x="12" y="514" width="992" height="40" rx="8" fill="#f8fafc" stroke="#dbe2ea"/>
+  <rect x="16" y="520" width="68" height="26" rx="6" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="26" y="537" class="ui small">Inspect</text>
+  <rect x="94" y="520" width="72" height="26" rx="6" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="104" y="537" class="ui small">Validate</text>
+  <rect x="178" y="520" width="72" height="26" rx="6" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="194" y="537" class="ui small">JSON-LD</text>
+  <rect x="262" y="520" width="72" height="26" rx="6" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="280" y="537" class="ui small">Convert</text>
+  <rect x="346" y="520" width="84" height="26" rx="6" fill="#ffffff" stroke="#dbe2ea"/>
+  <text x="360" y="537" class="ui small">Visualize</text>
+</svg>

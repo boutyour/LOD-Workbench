@@ -40,9 +40,9 @@ Open the web app at <http://127.0.0.1:5173>. The API should be available at <htt
 
 ## Screenshots
 
-| Web UI preview | CLI preview |
-| --- | --- |
-| [![Web UI preview](docs/screenshots/web-ui.svg)](docs/screenshots/web-ui.svg) | [![CLI preview](docs/screenshots/cli-output.svg)](docs/screenshots/cli-output.svg) |
+| Web UI preview | Graph preview | CLI preview |
+| --- | --- | --- |
+| [![Web UI preview](docs/screenshots/web-ui.svg)](docs/screenshots/web-ui.svg) | [![Graph preview](docs/screenshots/graph-preview.svg)](docs/screenshots/graph-preview.svg) | [![CLI preview](docs/screenshots/cli-output.svg)](docs/screenshots/cli-output.svg) |
 
 ## Command Line Output
 
