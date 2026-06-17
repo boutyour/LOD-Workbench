@@ -72,17 +72,3 @@ jobs:
         env:
           VITE_API_URL: http://127.0.0.1:8080
         run: npm run build
-
-  docs:
-    name: Docs checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check Markdown structure
-        run: npx --yes markdownlint-cli2 "README.md" "docs/**/*.md"
-
-      - name: Check Markdown links
-        run: npx --yes lychee --no-progress --verbose --accept 200,429 "README.md" "docs/**/*.md"

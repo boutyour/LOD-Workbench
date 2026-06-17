@@ -29,7 +29,7 @@ For a more structured reference guide, see [docs/README.md](docs/README.md).
 - Command-line interface for local workflows
 - Web API for integrating RDF features into other tools
 - React/Vite web client with live editing and visualization
-- GitHub Actions automation for CI, build, and docs checks
+- GitHub Actions automation for Rust checks and web builds
 
 ## Quick Start
 
@@ -180,7 +180,7 @@ make lint     # format + clippy
 
 ### Tooling and release
 
-- GitHub Actions CI for formatting, linting, build, tests, and docs checks
+- GitHub Actions CI for formatting, linting, build, and tests
 - Manual release tagging when you want to publish a snapshot
 
 ---

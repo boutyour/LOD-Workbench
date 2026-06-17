@@ -28,7 +28,6 @@ These are the recommended GitHub settings for the two long-lived branches.
 
 - `CI / Rust checks`
 - `CI / Web build`
-- `CI / Docs checks`
 
 ## Note
 

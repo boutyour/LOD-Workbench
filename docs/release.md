@@ -25,6 +25,6 @@ codebase, and tags can be used when you want to cut a manual snapshot.
 
 ## Related Workflows
 
-- `CI` runs the Rust, web, and docs checks in one place
+- `CI` runs the Rust checks and web build in one place
 
 <!-- markdownlint-enable MD013 -->
