@@ -1,9 +1,10 @@
 # LOD Workbench RS
 
-**LOD Workbench: A Multi-Utility Toolkit for Linked Open Data Engineering** implemented primarily in Rust.
+[![CI](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/boutyour/LOD-Workbench/actions/workflows/ci.yml)
+[![Beta deploy](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml/badge.svg?branch=beta)](https://github.com/boutyour/LOD-Workbench/actions/workflows/beta-pages.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Created by Pr. Youness BOUTYOUR, ENSIAS, Mohammed V University.
-Contact: `youness.boutyour@um5.ac.ma`.
+**LOD Workbench: A Multi-Utility Toolkit for Linked Open Data Engineering** implemented primarily in Rust.
 
 This repository contains a beta-ready RDF workbench with:
 
@@ -14,6 +15,76 @@ This repository contains a beta-ready RDF workbench with:
 - sample RDF, CSV, YAML, and HTML report assets
 
 The project is organized around a practical file-based workflow and supports a useful subset of Turtle, N-Triples, and JSON-LD for education, prototyping, and tool architecture demonstration. Full W3C RDF parsing and full SHACL validation can be integrated later through dedicated adapters.
+
+## At A Glance
+
+- Core RDF processing library for inspection, validation, conversion, mapping, and visualization
+- Command-line interface for local workflows
+- Web API for integrating RDF features into other tools
+- React/Vite web client with live editing and visualization
+- GitHub Actions automation for CI, beta deploys, and releases
+
+## Quick Start
+
+```bash
+git clone https://github.com/boutyour/LOD-Workbench.git
+cd LOD-Workbench
+cargo build --workspace
+cargo run -p lod-api
+cd apps/web
+npm install
+npm run dev
+```
+
+Open the web app at <http://127.0.0.1:5173>. The API should be available at <http://127.0.0.1:8080>.
+
+## Screenshots
+
+| Web UI preview | CLI preview |
+| --- | --- |
+| [![Web UI preview](docs/screenshots/web-ui.svg)](docs/screenshots/web-ui.svg) | [![CLI preview](docs/screenshots/cli-output.svg)](docs/screenshots/cli-output.svg) |
+
+## Command Line Output
+
+```text
+$ cargo run -p lod -- --help
+lod 0.1.0
+Multi-utility toolkit for Linked Open Data engineering
+
+Usage:
+  lod [OPTIONS] <COMMAND>
+
+Commands:
+  inspect     Inspect RDF input
+  validate    Validate RDF input
+  convert     Convert RDF output
+  map         Map CSV to RDF
+  visualize   Visualize RDF graph
+  help        Print help
+```
+
+```text
+$ cargo test -p lod-core --tests
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
+
+## Contents
+
+- [Repository structure](#repository-structure)
+- [Requirements](#requirements)
+- [Build](#build)
+- [Features](#features)
+- [CLI usage](#cli-usage)
+- [API usage](#api-usage)
+- [Web interface](#web-interface)
+- [Beta deployment on GitHub Pages](#beta-deployment-on-github-pages)
+- [Release workflow](#release-workflow)
+- [Enhanced test coverage](#enhanced-test-coverage)
+- [Design patterns used](#design-patterns-used)
+- [Roadmap](#roadmap)
+- [Current Status](#current-status)
+- [Important limitations](#important-limitations)
+- [Author & Contact](#author--contact)
 
 ---
 
@@ -73,37 +144,25 @@ make lint     # format + clippy
 
 ### Core RDF workflow
 
-- RDF inspection from files or text input
-- RDF validation with syntax checks and IRI quality checks
-- RDF conversion between Turtle, N-Triples, and JSON-LD
-- CSV to RDF mapping
-- RDF visualization to HTML/SVG-ready graph output
+- Inspect RDF from files or pasted text
+- Validate syntax and IRI quality
+- Convert between Turtle, N-Triples, and JSON-LD
+- Map CSV data to RDF
+- Render RDF graphs for browser viewing or SVG export
 
 ### Supported RDF syntax
 
-- Turtle prefixes and base IRI handling
-- `a` shorthand for `rdf:type`
-- typed literals
-- language-tagged literals
-- escaped literals
-- blank nodes
-- blank node property lists
-- RDF collections / lists
-- RDF bag examples
-- comments and multiline statements
-- round-trip serialization for the supported subset
+- Prefixes, base IRIs, and `a` shorthand
+- Typed and language-tagged literals, including escaped strings
+- Blank nodes, blank node property lists, RDF lists, and RDF bags
+- Comments, multiline statements, and round-trip serialization for the supported subset
 
 ### Web application
 
-- Inspect tab with summary metrics and distributions
-- Validate tab with readable issue reporting
-- Convert tab with format selection and output preview
-- Visualize tab with graph rendering, pan and zoom, drag support, and SVG export
-- Live processing while typing in the editor
-- Save edited text in the selected input format
-- Load RDF files from disk
-- Responsive layout for desktop and mobile screens
-- Clear loading and error states
+- Live text editing with open/save support
+- Inspect, validate, convert, and visualize tabs
+- Graph pan, zoom, drag, and SVG export
+- Responsive layout with clear loading and error states
 
 ### API
 
@@ -116,9 +175,8 @@ make lint     # format + clippy
 ### Tooling and release
 
 - GitHub Actions CI for formatting, linting, build, and tests
-- GitHub Pages beta deployment for the web client
-- Example data files and generated HTML reports
-- Rust workspace packaging for shared core services
+- GitHub Pages beta deployment from the `beta` branch
+- Tagged GitHub Releases for beta, release candidate, and stable snapshots
 
 ---
 
@@ -159,8 +217,6 @@ cargo run -p lod -- visualize examples/data.ttl --output reports/graph.html
 
 Then open `reports/graph.html` in a browser.
 
----
-
 ## API usage
 
 Start the API:
@@ -169,29 +225,14 @@ Start the API:
 cargo run -p lod-api
 ```
 
-Health check:
+Quick checks:
 
 ```bash
 curl http://127.0.0.1:8080/api/health
-```
-
-Inspect text RDF:
-
-```bash
 curl -X POST http://127.0.0.1:8080/api/inspect-text \
   -H 'Content-Type: application/json' \
   -d '{"format":"turtle","content":"@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" ."}'
 ```
-
-Convert text RDF:
-
-```bash
-curl -X POST http://127.0.0.1:8080/api/convert-text \
-  -H 'Content-Type: application/json' \
-  -d '{"from":"turtle","to":"json-ld","content":"@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" ."}'
-```
-
----
 
 ## Web interface
 
@@ -209,25 +250,17 @@ npm install
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173> in your browser. The web interface provides:
+Open <http://127.0.0.1:5173> in your browser. The web interface focuses on:
 
-- **Inspect** — view triple counts, subject/predicate/object breakdown, class and property distributions
-- **Validate** — check RDF syntax and IRI quality
-- **Convert** — between Turtle, N-Triples, and JSON-LD
-- **Preview** — JSON-LD graph payload
-- **Error handling** — clear error messages when the API is unreachable or returns errors
-- **Loading states** — visual feedback during API calls
-- **Responsive layout** — adapts to mobile and desktop screens
+- one editor for live RDF input
+- one tab per task: inspect, validate, convert, and visualize
+- a graph view with drag, zoom, and SVG export
+- save/download actions for the current text and converted output
+- responsive behavior for desktop and mobile screens
 
 ### Beta deployment on GitHub Pages
 
-The web client can be published as a beta build from the `beta` branch using GitHub Pages.
-
-1. Set the repository variable or secret `VITE_API_URL` to the deployed `lod-api` base URL.
-2. Push the branch `beta`, or run the `Beta Pages` workflow manually from GitHub Actions.
-3. GitHub Pages will serve the built UI from `apps/web/dist`.
-
-The beta site is the frontend only. It still needs a reachable API endpoint for inspect, validate, convert, and visualize actions.
+The web client publishes automatically from the `beta` branch through GitHub Pages. Set `VITE_API_URL` to the deployed API endpoint, then push to `beta` or run the `Beta Pages` workflow manually. The beta site is frontend-only and still needs a reachable API for inspect, validate, convert, and visualize actions.
 
 ### Release workflow
 
@@ -239,7 +272,7 @@ Use semantic version tags for published snapshots:
 
 Release checklist:
 
-1. Merge the target changes into `beta` and verify the beta Pages deployment.
+1. Merge target changes into `beta` and verify the beta Pages deployment.
 2. Run the workspace tests locally or in CI.
 3. Create a tag such as `v0.1.0-beta.2`.
 4. Push the tag to GitHub.
@@ -313,3 +346,11 @@ The Rust implementation follows pattern-equivalent idioms:
 ## Important limitations
 
 This first version intentionally implements a compact RDF parser to keep the repository self-contained and understandable. It is suitable for controlled Turtle/N-Triples examples and educational workflows. For production-grade RDF/JSON-LD/SHACL compliance, replace the parser and validator internals with adapters to mature RDF crates.
+
+---
+
+## Author & Contact
+
+Created by Pr. Youness BOUTYOUR, ENSIAS, Mohammed V University.
+
+Email: `youness.boutyour@um5.ac.ma`

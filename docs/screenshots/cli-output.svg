@@ -1,0 +1,39 @@
+<svg width="1280" height="520" viewBox="0 0 1280 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LOD Workbench command line output preview">
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="24" flood-color="#0f172a" flood-opacity="0.35"/>
+    </filter>
+    <style>
+      .t { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; fill: #e5e7eb; }
+      .dim { fill: #94a3b8; }
+      .green { fill: #4ade80; }
+      .blue { fill: #60a5fa; }
+      .amber { fill: #fbbf24; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="520" fill="#e2e8f0"/>
+  <rect x="48" y="38" width="1184" height="444" rx="18" fill="url(#shell)" filter="url(#shadow)"/>
+  <rect x="48" y="38" width="1184" height="42" rx="18" fill="#1f2937"/>
+  <circle cx="76" cy="59" r="7" fill="#ef4444"/>
+  <circle cx="98" cy="59" r="7" fill="#f59e0b"/>
+  <circle cx="120" cy="59" r="7" fill="#22c55e"/>
+  <text x="154" y="65" class="t dim" font-size="14">jdev@workbench: ~/lod-workbench-rs</text>
+
+  <text x="78" y="118" class="t" font-size="20">$ cargo run -p lod -- --help</text>
+  <text x="78" y="156" class="t green" font-size="16">lod 0.1.0</text>
+  <text x="78" y="182" class="t dim" font-size="16">Multi-utility toolkit for Linked Open Data engineering</text>
+  <text x="78" y="220" class="t blue" font-size="16">Usage:</text>
+  <text x="170" y="220" class="t" font-size="16">lod [OPTIONS] &lt;COMMAND&gt;</text>
+  <text x="78" y="258" class="t blue" font-size="16">Commands:</text>
+  <text x="170" y="258" class="t" font-size="16">inspect   validate   convert   map   visualize   help</text>
+  <text x="78" y="296" class="t blue" font-size="16">Options:</text>
+  <text x="170" y="296" class="t" font-size="16">-h, --help     Print help</text>
+  <text x="78" y="346" class="t" font-size="16">$ cargo test -p lod-core --tests</text>
+  <text x="78" y="384" class="t green" font-size="16">test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out</text>
+  <text x="78" y="426" class="t amber" font-size="16">beta release: v0.1.0-beta.2</text>
+</svg>
