@@ -352,7 +352,13 @@ This first version intentionally implements a compact RDF parser to keep the rep
 
 ## Project Docs
 
-The dedicated documentation hub lives in [docs/README.md](docs/README.md) and covers architecture, supported features, local setup, API endpoints, screenshots, troubleshooting, and release flow.
+The dedicated documentation hub lives in [docs/README.md](docs/README.md) and links to the focused pages below:
+
+- [Architecture](docs/architecture.md)
+- [CLI Reference](docs/cli.md)
+- [HTTP API](docs/api.md)
+
+It also keeps the screenshots, release flow, and troubleshooting notes in one place.
 
 ---
 
