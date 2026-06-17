@@ -4,6 +4,8 @@ import { GraphViewer } from './components/GraphViewer';
 import { API_URL, apiFetch } from './lib/api';
 import './style.css';
 
+// Default example exercises the features we want the UI to showcase: lists,
+// bags, blank nodes, typed literals, and multi-valued properties.
 const SAMPLE = `@prefix ex: <https://example.org/transport/> .
 @prefix schema: <https://schema.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -233,6 +235,8 @@ function App() {
     const timer = setTimeout(() => {
       const seq = ++syncSeq.current;
       controller = new AbortController();
+      // Re-run every backend action after a small debounce so typing updates
+      // inspect/validate/convert/visualize results in near real time.
       setBusy('sync');
       setErr('');
 

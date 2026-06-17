@@ -32,6 +32,8 @@ function buildGraphModel(jsonld) {
   const nodes = new Map();
   const edges = [];
 
+  // Convert JSON-LD into a small internal graph model that the SVG renderer
+  // can lay out and drag without needing a heavier graph library.
   const ensureNode = (id, type) => {
     if (nodes.has(id)) return nodes.get(id);
     const isBlank = id.startsWith('_:');
@@ -85,6 +87,8 @@ function layoutGraph(model, width = 1000, height = 420) {
     return { nodes, edges: model.edges, viewBox: `0 0 ${width} ${height}` };
   }
 
+  // First cluster connected nodes into components so each cluster can be
+  // centered independently and the graph does not collapse into one pile.
   const nodeById = new Map(nodes.map(node => [node.id, node]));
   const outgoing = new Map(nodes.map(node => [node.id, []]));
   const incoming = new Map(nodes.map(node => [node.id, []]));
@@ -142,6 +146,7 @@ function layoutGraph(model, width = 1000, height = 420) {
   const layoutComponent = (component, centerX, centerY, rotation = -Math.PI / 2) => {
     const componentSet = new Set(component.map(node => node.id));
     const root = rootFor(component);
+    // Seed nodes on concentric rings before the force pass to reduce overlap.
     const initialRadius = Math.max(100, Math.min(width, height) * 0.18);
     const positions = new Map(component.map((node, index) => {
       const angle = rotation + (index / Math.max(component.length, 1)) * Math.PI * 2;
@@ -282,6 +287,8 @@ function downloadSvg(svgNode, graph, filename = 'lod-graph.svg') {
   if (!svgNode) return;
   const serializer = new XMLSerializer();
   const clone = svgNode.cloneNode(true);
+  // Recompute the exported bounds so the downloaded SVG captures the whole
+  // graph instead of only the current viewport.
   const contentGroup = clone.querySelector('g');
   if (contentGroup) {
     contentGroup.removeAttribute('transform');
@@ -445,6 +452,7 @@ export function GraphViewer({ graphData, jsonld }) {
       setPan({ x: 0, y: 0 });
       return;
     }
+    // Center the graph in the visible SVG area and scale it to fit safely.
     const [vx, vy, vw, vh] = layout.viewBox.split(' ').map(Number);
     const contentW = Math.max(1, bounds.maxX - bounds.minX);
     const contentH = Math.max(1, bounds.maxY - bounds.minY);
@@ -479,6 +487,8 @@ export function GraphViewer({ graphData, jsonld }) {
   const beginDrag = (node, evt) => {
     const svg = svgRef.current;
     if (!svg) return;
+    // Convert the pointer position into graph coordinates so the node can be
+    // moved even while the graph is zoomed or panned.
     evt.preventDefault();
     evt.stopPropagation();
     const p = graphPoint(svg, pan, zoom, evt.clientX, evt.clientY);
@@ -498,6 +508,7 @@ export function GraphViewer({ graphData, jsonld }) {
     const svg = svgRef.current;
     if (!svg || evt.button !== 0) return;
     if (evt.target !== svg) return;
+    // Dragging the bare SVG background pans the full graph.
     evt.preventDefault();
     const p = svgPoint(svg, evt.clientX, evt.clientY);
     dragRef.current = {
@@ -548,6 +559,7 @@ export function GraphViewer({ graphData, jsonld }) {
     evt.preventDefault();
     const svg = svgRef.current;
     if (!svg) return;
+    // Zoom around the cursor to keep the graph interaction predictable.
     const pt = svgPoint(svg, evt.clientX, evt.clientY);
     const factor = evt.deltaY < 0 ? 1.12 : 1 / 1.12;
     zoomAtPoint(zoom * factor, pt);

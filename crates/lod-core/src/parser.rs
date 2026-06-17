@@ -240,6 +240,8 @@ fn take_token(input: &str) -> Option<(&str, &str)> {
 }
 
 fn split_turtle_statements(content: &str) -> Vec<(usize, String)> {
+    // Split on top-level dots while preserving dots inside IRIs, literals,
+    // blank node blocks, and RDF collections.
     let mut out = Vec::new();
     let mut buf = String::new();
     let mut line = 1usize;
@@ -344,6 +346,8 @@ fn split_turtle_statements(content: &str) -> Vec<(usize, String)> {
 }
 
 fn split_top_level(input: &str, delim: char) -> Vec<String> {
+    // Split a clause only when we are not inside strings, IRIs, or nested RDF
+    // structures such as blank nodes and collections.
     let mut parts = Vec::new();
     let mut buf = String::new();
     let mut in_string = false;
@@ -420,6 +424,7 @@ fn parse_object(
     triples: &mut Vec<Triple>,
 ) -> Result<Node, String> {
     let o = trim_trailing_terminators(o);
+    // Choose the parser based on the syntactic form of the object token.
     if contains_bare_whitespace(o) && !o.starts_with('<') && !o.starts_with('"') && !o.starts_with('[') && !o.starts_with('(') && !o.starts_with("_:") {
         return Err("unexpected whitespace in object".into());
     }
@@ -461,6 +466,7 @@ fn parse_blank_node_property_list(
     if !rest.trim().is_empty() {
         return Err("unexpected trailing content after blank node property list".into());
     }
+    // Emit one fresh blank node and attach each predicate/object clause to it.
     let subject = Node::Blank(fresh_blank_id(blank_id_seq));
     let clauses = split_top_level(inner.trim(), ';');
     let mut saw_predicate = false;
@@ -489,6 +495,7 @@ fn parse_rdf_collection(
     if !rest.trim().is_empty() {
         return Err("unexpected trailing content after RDF collection".into());
     }
+    // Build the RDF list cell-by-cell so the serializer can round-trip it.
     let mut items = Vec::new();
     let mut cursor = inner.trim();
     while !cursor.trim().is_empty() {

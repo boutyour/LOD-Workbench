@@ -70,6 +70,8 @@ fn build_app() -> Router {
         lod: Arc::new(LodWorkbench::default()),
     };
 
+    // Keep the browser UI and the raw API in the same router so both share
+    // the same CORS policy and application state.
     Router::new()
         .route("/", get(index))
         .route("/api/health", get(|| async { "ok" }))
@@ -150,6 +152,8 @@ fn build_visualization_graph(graph: &LodGraph) -> VisualizationGraph {
     let mut nodes = std::collections::BTreeMap::new();
     let mut edges = Vec::new();
 
+    // Deduplicate nodes by label so the browser graph stays compact and we do
+    // not render one node per triple occurrence.
     for (i, t) in graph.triples.iter().enumerate() {
         let s_label = node_label(&t.subject);
         let o_label = node_label(&t.object);
@@ -192,6 +196,8 @@ fn make_visualization_node(id: &str, node: &lod_core::Node, has_outgoing: bool) 
         lod_core::Node::Iri(_) => ("iri", "#4f46e5", "ellipse"),
         lod_core::Node::Blank(_) => ("blank", "#d97706", "diamond"),
         lod_core::Node::Literal { .. } => {
+            // Literal nodes are treated like hubs when they fan out to support
+            // list and bag structures in the visualization.
             if has_outgoing {
                 ("literal-hub", "#059669", "round-rectangle")
             } else {

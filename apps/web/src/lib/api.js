@@ -12,6 +12,8 @@ export async function apiFetch(endpoint, body, options = {}) {
       signal: options.signal,
     });
   } catch {
+    // Return a readable message instead of throwing so the UI can surface a
+    // helpful "start the API" hint in the error banner.
     return { ok: false, error: `Cannot reach API at ${API_URL}\nStart: cargo run -p lod-api` };
   }
 
