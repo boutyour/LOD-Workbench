@@ -2,5 +2,8 @@
 **/node_modules
 **/dist
 *.html
+!apps/web/index.html
 *.json
+!apps/web/package.json
+!apps/web/package-lock.json
 .DS_Store
