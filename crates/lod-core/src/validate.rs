@@ -184,7 +184,7 @@ fn run_shacl_validation(
 
     let data_input = InputSpec::str(content);
     let data_inputs = [data_input];
-    let shapes_input = InputSpec::str(&shapes_content);
+    let shapes_input = InputSpec::str(shapes_content);
     let mode = ShaclValidationMode::Native;
     // Use the detailed SHACL table so we can surface the failing focus node,
     // constraint component, path, and source shape in the UI.
@@ -283,7 +283,7 @@ fn parse_shacl_validation_details(report: &str) -> Vec<ValidationIssue> {
             continue;
         }
 
-        let severity = cells.get(0).map(|s| s.trim()).unwrap_or("");
+        let severity = cells.first().map(|s| s.trim()).unwrap_or("");
         if !severity.is_empty() {
             if let Some(prev) = current.take() {
                 issues.push(shacl_detail_row_to_issue(prev));
@@ -337,16 +337,14 @@ fn strip_ansi_escape_sequences(input: &str) -> String {
     let mut chars = input.chars().peekable();
 
     while let Some(ch) = chars.next() {
-        if ch == '\u{1b}' {
-            if matches!(chars.peek(), Some('[')) {
-                let _ = chars.next();
-                while let Some(next) = chars.next() {
-                    if ('@'..='~').contains(&next) {
-                        break;
-                    }
+        if ch == '\u{1b}' && matches!(chars.peek(), Some('[')) {
+            let _ = chars.next();
+            for next in chars.by_ref() {
+                if ('@'..='~').contains(&next) {
+                    break;
                 }
-                continue;
             }
+            continue;
         }
         out.push(ch);
     }
@@ -477,7 +475,7 @@ fn normalize_shacl_severity(severity: &str) -> String {
         "violation" => "Violation".into(),
         "warning" => "Warning".into(),
         "info" => "Info".into(),
-        other if other.is_empty() => "Violation".into(),
+        "" => "Violation".into(),
         other => other.to_string(),
     }
 }

@@ -104,7 +104,7 @@ fn parse_rdfxml_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodError> {
 fn parse_trig_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodError> {
     let mut graph = LodGraph::default();
     let mut parser = TriGParser::new().for_reader(reader);
-    while let Some(quad) = parser.next() {
+    for quad in parser.by_ref() {
         let quad = quad.map_err(|e| LodError::RdfParsing(e.to_string()))?;
         push_quad(&mut graph, quad);
     }
@@ -133,7 +133,7 @@ fn parse_rdfxml_content(content: &str) -> Result<LodGraph, LodError> {
 fn parse_trig_content(content: &str) -> Result<LodGraph, LodError> {
     let mut graph = LodGraph::default();
     let mut parser = TriGParser::new().for_slice(content.as_bytes());
-    while let Some(quad) = parser.next() {
+    for quad in parser.by_ref() {
         let quad = quad.map_err(|e| LodError::RdfParsing(e.to_string()))?;
         push_quad(&mut graph, quad);
     }
@@ -142,7 +142,7 @@ fn parse_trig_content(content: &str) -> Result<LodGraph, LodError> {
 
 fn parse_turtle_rdf(content: &str) -> Result<LodGraph, LodError> {
     match parse_turtle_with_rio(content) {
-        Ok(graph) => return Ok(graph),
+        Ok(graph) => Ok(graph),
         Err(rio_error) => {
             // The lightweight parser below preserves older, project-specific
             // diagnostics for a few malformed examples while rio_turtle gives
