@@ -1,11 +1,11 @@
 use crate::{LodError, LodGraph, Node, RdfFormat, Triple};
 use oxiri::Iri;
 use oxrdf::{BlankNodeRef, GraphNameRef, LiteralRef, NamedNodeRef, NamedOrBlankNodeRef, QuadRef, TermRef, TripleRef};
+use oxrdfxml::{RdfXmlParser, RdfXmlSerializer};
+use oxttl::{TriGParser, TriGSerializer};
 use rio_api::model::{Literal, Subject, Term};
 use rio_api::parser::TriplesParser;
 use rio_turtle::{NTriplesParser, TurtleParser};
-use oxrdfxml::{RdfXmlParser, RdfXmlSerializer};
-use oxttl::{TriGParser, TriGSerializer};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::fs;
@@ -84,7 +84,7 @@ fn parse_line_based_rdf_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodErr
             });
             Ok(()) as Result<(), rio_turtle::TurtleError>
         })
-    .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        .map_err(|e| LodError::RdfParsing(e.to_string()))?;
     Ok(graph)
 }
 
@@ -236,10 +236,18 @@ fn push_quad(graph: &mut LodGraph, quad: oxrdf::Quad) {
     match quad.graph_name {
         oxrdf::GraphName::DefaultGraph => graph.triples.push(triple),
         oxrdf::GraphName::NamedNode(node) => {
-            graph.named_graphs.entry(node.as_str().to_string()).or_default().push(triple);
+            graph
+                .named_graphs
+                .entry(node.as_str().to_string())
+                .or_default()
+                .push(triple);
         }
         oxrdf::GraphName::BlankNode(node) => {
-            graph.named_graphs.entry(format!("_:{}", node.as_str())).or_default().push(triple);
+            graph
+                .named_graphs
+                .entry(format!("_:{}", node.as_str()))
+                .or_default()
+                .push(triple);
         }
     }
 }
@@ -1161,7 +1169,9 @@ fn triple_to_oxrdf_quad_ref<'a>(triple: &'a Triple, graph_name: GraphNameRef<'a>
 
 fn node_to_named_or_blank_ref(node: &Node) -> Result<NamedOrBlankNodeRef<'_>, LodError> {
     match node {
-        Node::Iri(iri) => Ok(NamedNodeRef::new(iri).map_err(|e| LodError::RdfParsing(e.to_string()))?.into()),
+        Node::Iri(iri) => Ok(NamedNodeRef::new(iri)
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?
+            .into()),
         Node::Blank(id) => Ok(blank_node_ref(id)?.into()),
         Node::Literal { .. } => Err(LodError::RdfParsing("literal cannot be used as a subject".into())),
     }
@@ -1169,14 +1179,15 @@ fn node_to_named_or_blank_ref(node: &Node) -> Result<NamedOrBlankNodeRef<'_>, Lo
 
 fn node_to_term_ref(node: &Node) -> Result<TermRef<'_>, LodError> {
     match node {
-        Node::Iri(iri) => Ok(NamedNodeRef::new(iri).map_err(|e| LodError::RdfParsing(e.to_string()))?.into()),
+        Node::Iri(iri) => Ok(NamedNodeRef::new(iri)
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?
+            .into()),
         Node::Blank(id) => Ok(blank_node_ref(id)?.into()),
         Node::Literal { value, datatype, lang } => {
             if let Some(lang) = lang {
                 Ok(LiteralRef::new_language_tagged_literal_unchecked(value, lang).into())
             } else if let Some(datatype) = datatype {
-                let datatype = NamedNodeRef::new(datatype)
-                    .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+                let datatype = NamedNodeRef::new(datatype).map_err(|e| LodError::RdfParsing(e.to_string()))?;
                 Ok(LiteralRef::new_typed_literal(value, datatype).into())
             } else {
                 Ok(LiteralRef::new_simple_literal(value).into())
@@ -1194,7 +1205,9 @@ fn graph_name_to_ref(name: &str) -> Result<GraphNameRef<'_>, LodError> {
     if name.starts_with("_:") {
         Ok(blank_node_ref(name)?.into())
     } else {
-        Ok(NamedNodeRef::new(name).map_err(|e| LodError::RdfParsing(e.to_string()))?.into())
+        Ok(NamedNodeRef::new(name)
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?
+            .into())
     }
 }
 
