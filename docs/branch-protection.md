@@ -7,29 +7,27 @@ These are the recommended GitHub settings for the two long-lived branches.
 - require pull requests before merging
 - require at least one review
 - require status checks to pass before merging
-- include the CI, Docs, and Release-related checks
+- include the CI check
 - disallow force pushes
 - disallow branch deletion
 
 ## `beta`
 
 - require pull requests for changes that should reach the preview site
-- require the CI, Docs, and Beta Pages checks to pass
+- require the CI check to pass
 - disallow force pushes
 - keep branch deletion disabled
 
 ## Why This Helps
 
 - `main` stays stable and release-ready
-- `beta` stays deployable for preview testing
-- the shared build workflow makes the checks consistent across branches
+- `beta` stays useful for preview testing
+- the single CI workflow keeps the checks consistent across branches
 
 ## Suggested Checks
 
-- `CI / build`
-- `Docs / markdown`
-- `Beta Pages / build`
-- `Release / build`
+- `CI / Rust checks`
+- `CI / Web build`
 
 ## Note
 

@@ -1,42 +1,30 @@
 # Release
 
-LOD Workbench uses branches, tags, GitHub Actions, and GitHub Pages to publish
-beta builds and release snapshots.
+<!-- markdownlint-disable MD013 -->
+
+LOD Workbench keeps release handling simple: one CI workflow validates the
+codebase, and tags can be used when you want to cut a manual snapshot.
 
 ## Branches
 
 - `main` tracks the stable development line
-- `beta` tracks the preview branch used for Pages deployment
+- `beta` can be used for preview testing when needed
 
-## Beta Deploy
+## Manual Snapshot Flow
 
-- push to `beta` to trigger the beta Pages workflow
-- set `VITE_API_URL` to a reachable API base URL
-- the Pages build uses the React/Vite client from `apps/web`
-
-## GitHub Releases
-
-- push a tag such as `v0.1.0-beta.2` to trigger the release workflow
-- beta and release-candidate tags are treated as prereleases
-- the release workflow reuses the shared build job from `.github/workflows/reusable-build.yml`
-- release assets include Linux binaries and the web client archive
-
-## Typical Release Flow
-
-1. Merge the target work into `beta`.
-2. Verify the beta Pages deployment.
-3. Tag the beta commit.
-4. Push the tag to GitHub.
-5. Check the GitHub Release page for the generated prerelease assets.
+1. Merge the target work into `beta` or `main`.
+2. Run the CI workflow locally or wait for GitHub Actions to pass.
+3. Tag the commit when you want a snapshot.
+4. Publish the tag from your local git workflow if you need an archive.
 
 ## Versioning Notes
 
-- semantic version tags are used for published snapshots
-- beta tags are intended for preview and testing
+- semantic version tags can still be used for published snapshots
+- beta tags are optional and only useful for preview/testing
 - stable tags can be used once the release is ready for wider distribution
 
 ## Related Workflows
 
-- `CI` uses the reusable build workflow for linting, build, and test checks
-- `Beta Pages` uses the reusable build workflow and then deploys the web client
-- `Docs` validates Markdown links and structure before documentation changes land
+- `CI` runs the Rust checks and web build in one place
+
+<!-- markdownlint-enable MD013 -->

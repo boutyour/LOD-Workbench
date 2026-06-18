@@ -29,11 +29,7 @@ impl InspectionService {
         self.inspect_graph(graph, json_output)
     }
 
-    fn inspect_graph(
-        &self,
-        graph: LodGraph,
-        json_output: Option<String>,
-    ) -> Result<InspectionReport, LodError> {
+    fn inspect_graph(&self, graph: LodGraph, json_output: Option<String>) -> Result<InspectionReport, LodError> {
         // Aggregate counts and distributions in one pass so the report stays
         // cheap even for larger examples.
         let mut subjects = BTreeSet::new();

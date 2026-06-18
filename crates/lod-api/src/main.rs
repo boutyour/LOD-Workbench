@@ -5,16 +5,9 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use lod_core::{
-    parser, InspectionReport, LodGraph, LodWorkbench, RdfFormat, ValidationReport, VisualizationEdge,
-    VisualizationGraph, VisualizationNode,
-};
+use lod_core::{parser, LodGraph, LodWorkbench, RdfFormat, VisualizationEdge, VisualizationGraph, VisualizationNode};
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeSet,
-    net::SocketAddr,
-    sync::Arc,
-};
+use std::{collections::BTreeSet, net::SocketAddr, sync::Arc};
 use tower_http::cors::CorsLayer;
 
 #[derive(Clone)]
@@ -230,6 +223,7 @@ fn api_error(code: StatusCode, error: String) -> axum::response::Response {
 mod tests {
     use super::*;
     use axum::body::to_bytes;
+    use lod_core::{InspectionReport, ValidationReport};
 
     #[tokio::test]
     async fn visualize_text_returns_graph_payload() {

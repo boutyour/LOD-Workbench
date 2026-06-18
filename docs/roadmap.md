@@ -1,6 +1,17 @@
 # Roadmap
 
-This roadmap focuses on the path from the current beta line to `v1.0.0`.
+This roadmap focuses on the beta series and the path to `v1.0.0`.
+
+## `v0.1.0-beta.3`
+
+Current release line:
+
+- keep the single CI workflow green
+- keep the GitHub Pages preview available
+- stabilize the parser on the supported RDF subset
+- keep the web UI responsive, readable, and predictable
+- make the editor save/open flow reliable
+- keep the documentation aligned with the shipped behavior
 
 ## `v0.1.0-beta.4`
 
@@ -40,7 +51,7 @@ Target focus:
 - publish a stable tag
 - treat the supported RDF subset as the documented contract
 - keep the CLI, API, and web UI aligned
-- ship the preview workflow as a stable release process
+- ship the beta-tested packaging and preview workflow as stable
 - leave room for future RDF and SHACL adapter work
 
 ## After `v1`

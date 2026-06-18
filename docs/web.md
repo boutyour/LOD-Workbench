@@ -1,5 +1,7 @@
 # Web UI
 
+<!-- markdownlint-disable MD013 -->
+
 The web application provides the fastest interactive way to explore RDF data.
 
 ## What It Includes
@@ -23,7 +25,8 @@ The web application provides the fastest interactive way to explore RDF data.
 
 - the graph is rendered as SVG, so browser zoom and export stay lightweight
 - node dragging is available directly in the graph canvas
-- the export button saves the full graph bounds instead of only the visible viewport
+- the export button saves the full graph bounds instead of only the visible
+  viewport
 
 ## Screenshots
 
@@ -37,3 +40,5 @@ The web application provides the fastest interactive way to explore RDF data.
 - the graph renderer lives in `apps/web/src/components/GraphViewer.jsx`
 - the API helper lives in `apps/web/src/lib/api.js`
 - styling lives in `apps/web/src/style.css`
+
+<!-- markdownlint-enable MD013 -->

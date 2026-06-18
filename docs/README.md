@@ -11,6 +11,7 @@ quick navigation.
 - [HTTP API](api.md)
 - [Web UI](web.md)
 - [Roadmap](roadmap.md)
+- [Versioning](versioning.md)
 - [Release](release.md)
 - [Branch Protection](branch-protection.md)
 - [Troubleshooting](troubleshooting.md)
@@ -19,5 +20,6 @@ quick navigation.
 
 LOD Workbench is a Linked Open Data toolkit that can inspect, validate,
 convert, map, and visualize RDF data. The same core logic is shared by the
-Rust CLI, the HTTP API, and the web UI. The roadmap page focuses on the beta
-line and the path to `v1.0.0`.
+Rust CLI, the HTTP API, and the web UI. The roadmap page tracks the beta
+series and the path to `v1.0.0`.
+The versioning page explains how branches and tags move from beta to `v1.0.0`.

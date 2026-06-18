@@ -27,7 +27,10 @@ fn parses_turtle_base_and_relative_iris() {
 "#;
     let graph = parser::parse_graph(ttl, RdfFormat::Turtle).unwrap();
     assert_eq!(graph.base.as_deref(), Some("https://example.org/base/"));
-    assert_eq!(graph.triples[0].subject, Node::Iri("https://example.org/base/people/ada".into()));
+    assert_eq!(
+        graph.triples[0].subject,
+        Node::Iri("https://example.org/base/people/ada".into())
+    );
 }
 
 #[test]
@@ -48,7 +51,10 @@ people:adaLovelace    rdf:type               foaf:Person ;
     let graph = parser::parse_graph(ttl, RdfFormat::Turtle).unwrap();
     assert_eq!(graph.triples.len(), 5);
     assert!(graph.triples.iter().any(|t| t.predicate.ends_with("#type")));
-    assert!(graph.triples.iter().any(|t| matches!(&t.object, Node::Literal { lang, .. } if lang.as_deref() == Some("nb"))));
+    assert!(graph
+        .triples
+        .iter()
+        .any(|t| matches!(&t.object, Node::Literal { lang, .. } if lang.as_deref() == Some("nb"))));
 }
 
 #[test]
@@ -108,7 +114,10 @@ ex:a ex:list ( ex:b ex:c "d" ) .
     let graph = parser::parse_graph(ttl, RdfFormat::Turtle).unwrap();
     assert!(graph.triples.iter().any(|t| t.predicate.ends_with("#first")));
     assert!(graph.triples.iter().any(|t| t.predicate.ends_with("#rest")));
-    assert!(graph.triples.iter().any(|t| matches!(&t.object, Node::Literal { value, .. } if value == "d")));
+    assert!(graph
+        .triples
+        .iter()
+        .any(|t| matches!(&t.object, Node::Literal { value, .. } if value == "d")));
 }
 
 #[test]
