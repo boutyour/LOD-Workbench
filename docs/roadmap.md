@@ -6,11 +6,12 @@ This roadmap focuses on the path from the current beta line to `v1.0.0`.
 
 Target focus:
 
-- keep the editor, inspect, validate, convert, and visualize tabs in sync
+- auto-refresh the editor view on text changes
 - save the current text in the selected input format
 - improve parser coverage for the supported Turtle subset
-- keep blank nodes, lists, and bags readable in the graph view
-- make the graph preview and SVG export more reliable
+- add better parser support for lists and bags
+- make validation errors clearer and easier to act on
+- make graph export more readable and reliable
 - keep beta preview builds stable on GitHub Actions
 
 ## `v0.1.0-beta.5`
@@ -18,7 +19,6 @@ Target focus:
 Target focus:
 
 - reduce noisy warnings and CI friction
-- improve error messages for parsing and validation
 - harden open/save flows for edited text
 - tighten the docs for setup, troubleshooting, and release steps
 - expand regression tests for parser and service behavior
