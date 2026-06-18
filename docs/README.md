@@ -19,4 +19,5 @@ quick navigation.
 
 LOD Workbench is a Linked Open Data toolkit that can inspect, validate,
 convert, map, and visualize RDF data. The same core logic is shared by the
-Rust CLI, the HTTP API, and the web UI.
+Rust CLI, the HTTP API, and the web UI. The roadmap page tracks the beta
+series and the path to `v1.0.0`.
