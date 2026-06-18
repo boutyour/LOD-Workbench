@@ -1,22 +1,37 @@
 use crate::{LodError, LodGraph, Node, RdfFormat, Triple};
+use oxiri::Iri;
+use rio_api::model::{Literal, Subject, Term};
+use rio_api::parser::TriplesParser;
+use rio_turtle::{NTriplesParser, TurtleParser};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::fs;
+use std::io::{BufRead, BufReader, Cursor};
 use std::path::Path;
 
 pub fn read_graph(path: impl AsRef<Path>, format: Option<RdfFormat>) -> Result<LodGraph, LodError> {
-    let content = fs::read_to_string(&path)?;
+    let path = path.as_ref();
     let fmt = match format {
         Some(f) => f,
         None => RdfFormat::from_path(path)?,
     };
-    parse_graph(&content, fmt)
+    match fmt {
+        RdfFormat::NTriples => {
+            let file = fs::File::open(path)?;
+            parse_line_based_rdf_reader(BufReader::new(file))
+        }
+        _ => {
+            let content = fs::read_to_string(path)?;
+            parse_graph(&content, fmt)
+        }
+    }
 }
 
 pub fn write_graph(graph: &LodGraph, path: impl AsRef<Path>, format: Option<RdfFormat>) -> Result<(), LodError> {
+    let path = path.as_ref();
     let fmt = match format {
         Some(f) => f,
-        None => RdfFormat::from_path(&path)?,
+        None => RdfFormat::from_path(path)?,
     };
     let content = serialize_graph(graph, fmt)?;
     fs::write(path, content)?;
@@ -40,30 +55,117 @@ pub fn serialize_graph(graph: &LodGraph, format: RdfFormat) -> Result<String, Lo
 }
 
 fn parse_line_based_rdf(content: &str) -> Result<LodGraph, LodError> {
+    parse_line_based_rdf_reader(BufReader::new(Cursor::new(content.as_bytes())))
+}
+
+fn parse_line_based_rdf_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodError> {
     let mut graph = LodGraph::default();
-    for (i, raw) in content.lines().enumerate() {
-        let line_no = i + 1;
-        let line = raw.trim();
-        if line.is_empty() || line.starts_with('#') {
-            continue;
-        }
-        if line.starts_with("@prefix") || line.to_ascii_uppercase().starts_with("PREFIX") {
-            parse_prefix(line, &mut graph.prefixes)
-                .map_err(|e| LodError::RdfParsing(format!("line {line_no}: {e}")))?;
-            continue;
-        }
-        let triple = parse_triple_line(line, &graph.prefixes)
-            .map_err(|e| LodError::RdfParsing(format!("line {line_no}: {e}")))?;
-        graph.triples.push(triple);
-    }
+    NTriplesParser::new(reader)
+        .parse_all(&mut |triple| {
+            graph.triples.push(Triple {
+                subject: rio_subject_to_node(&triple.subject),
+                predicate: triple.predicate.iri.to_string(),
+                object: rio_term_to_node(&triple.object),
+            });
+            Ok(()) as Result<(), rio_turtle::TurtleError>
+        })
+        .map_err(|e| LodError::RdfParsing(e.to_string()))?;
     Ok(graph)
 }
 
 fn parse_turtle_rdf(content: &str) -> Result<LodGraph, LodError> {
+    match parse_turtle_with_rio(content) {
+        Ok(graph) => return Ok(graph),
+        Err(rio_error) => {
+            // The lightweight parser below preserves older, project-specific
+            // diagnostics for a few malformed examples while rio_turtle gives
+            // us standards coverage for valid Turtle.
+            match parse_turtle_subset(content) {
+                Ok(graph) => Ok(graph),
+                Err(subset_error) => {
+                    if subset_error.to_string().contains("line ") {
+                        Err(subset_error)
+                    } else {
+                        Err(rio_error)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn parse_turtle_with_rio(content: &str) -> Result<LodGraph, LodError> {
+    let mut graph = LodGraph::default();
+    scan_turtle_declarations(content, &mut graph);
+    let base_iri = graph.base.as_ref().and_then(|base| Iri::parse(base.clone()).ok());
+    TurtleParser::new(Cursor::new(content.as_bytes()), base_iri)
+        .parse_all(&mut |triple| {
+            graph.triples.push(Triple {
+                subject: rio_subject_to_node(&triple.subject),
+                predicate: triple.predicate.iri.to_string(),
+                object: rio_term_to_node(&triple.object),
+            });
+            Ok(()) as Result<(), rio_turtle::TurtleError>
+        })
+        .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    Ok(graph)
+}
+
+fn scan_turtle_declarations(content: &str, graph: &mut LodGraph) {
+    for (_, stmt) in split_turtle_statements(content) {
+        let trimmed = strip_inline_comment(&stmt);
+        let trimmed = trimmed.trim();
+        if trimmed.starts_with("@prefix") || trimmed.to_ascii_uppercase().starts_with("PREFIX") {
+            let _ = parse_prefix(trimmed, &mut graph.prefixes);
+        } else if trimmed.starts_with("@base") || trimmed.to_ascii_uppercase().starts_with("BASE") {
+            let _ = parse_base(trimmed, &mut graph.base);
+        }
+    }
+}
+
+fn rio_subject_to_node(subject: &Subject<'_>) -> Node {
+    match subject {
+        Subject::NamedNode(node) => Node::Iri(node.iri.to_string()),
+        Subject::BlankNode(node) => Node::Blank(format!("_:{}", node.id)),
+        Subject::Triple(_) => Node::Blank("_:rdfstar_subject".to_string()),
+    }
+}
+
+fn rio_term_to_node(term: &Term<'_>) -> Node {
+    match term {
+        Term::NamedNode(node) => Node::Iri(node.iri.to_string()),
+        Term::BlankNode(node) => Node::Blank(format!("_:{}", node.id)),
+        Term::Literal(literal) => rio_literal_to_node(literal),
+        Term::Triple(_) => Node::Blank("_:rdfstar_object".to_string()),
+    }
+}
+
+fn rio_literal_to_node(literal: &Literal<'_>) -> Node {
+    match literal {
+        Literal::Simple { value } => Node::Literal {
+            value: value.to_string(),
+            datatype: None,
+            lang: None,
+        },
+        Literal::LanguageTaggedString { value, language } => Node::Literal {
+            value: value.to_string(),
+            datatype: None,
+            lang: Some(language.to_string()),
+        },
+        Literal::Typed { value, datatype } => Node::Literal {
+            value: value.to_string(),
+            datatype: Some(datatype.iri.to_string()),
+            lang: None,
+        },
+    }
+}
+
+fn parse_turtle_subset(content: &str) -> Result<LodGraph, LodError> {
     let mut graph = LodGraph::default();
     let mut blank_id_seq = 0usize;
     for (line_no, stmt) in split_turtle_statements(content) {
-        let trimmed = stmt.trim();
+        let trimmed = strip_inline_comment(&stmt);
+        let trimmed = trimmed.trim();
         if trimmed.is_empty() {
             continue;
         }
@@ -84,13 +186,17 @@ fn parse_turtle_rdf(content: &str) -> Result<LodGraph, LodError> {
 }
 
 fn parse_prefix(line: &str, prefixes: &mut BTreeMap<String, String>) -> Result<(), String> {
-    let cleaned = line.trim().trim_end_matches('.').trim();
+    let s = strip_inline_comment(line);
+    let cleaned = s.trim().trim_end_matches('.').trim();
     let parts: Vec<&str> = cleaned.split_whitespace().collect();
     if parts.len() < 3 {
         return Err("invalid prefix declaration".into());
     }
     if parts.len() > 3 {
         return Err("prefix declaration appears to be missing a `.` terminator".into());
+    }
+    if !parts[1].ends_with(':') {
+        return Err("prefix declaration must use the form `@prefix name: <iri> .`".into());
     }
     let prefix = parts[1].trim_end_matches(':').to_string();
     let iri = trim_iri(parts[2]).ok_or("invalid prefix IRI")?.to_string();
@@ -99,7 +205,8 @@ fn parse_prefix(line: &str, prefixes: &mut BTreeMap<String, String>) -> Result<(
 }
 
 fn parse_base(line: &str, base: &mut Option<String>) -> Result<(), String> {
-    let cleaned = line.trim().trim_end_matches('.').trim();
+    let s = strip_inline_comment(line);
+    let cleaned = s.trim().trim_end_matches('.').trim();
     let parts: Vec<&str> = cleaned.split_whitespace().collect();
     if parts.len() < 2 {
         return Err("invalid base declaration".into());
@@ -107,24 +214,12 @@ fn parse_base(line: &str, base: &mut Option<String>) -> Result<(), String> {
     if parts.len() > 2 {
         return Err("base declaration appears to be missing a `.` terminator".into());
     }
+    if !parts[0].eq_ignore_ascii_case("@base") && !parts[0].eq_ignore_ascii_case("base") {
+        return Err("base declaration must start with `@base` or `BASE`".into());
+    }
     let iri = trim_iri(parts[1]).ok_or("invalid base IRI")?.to_string();
     *base = Some(iri);
     Ok(())
-}
-
-fn parse_triple_line(line: &str, prefixes: &BTreeMap<String, String>) -> Result<Triple, String> {
-    let line = line.trim_end_matches('.').trim();
-    let (s, rest) = take_token(line).ok_or("missing subject")?;
-    let (p, rest) = take_token(rest.trim()).ok_or("missing predicate")?;
-    let o = rest.trim();
-    if o.is_empty() {
-        return Err("missing object".into());
-    }
-    Ok(Triple {
-        subject: parse_subject(s, prefixes, None)?,
-        predicate: expand_term(p, prefixes, None)?,
-        object: parse_object_simple(o, prefixes)?,
-    })
 }
 
 fn parse_turtle_statement(
@@ -166,7 +261,8 @@ fn parse_predicate_object_list(
     blank_id_seq: &mut usize,
     triples: &mut Vec<Triple>,
 ) -> Result<(), String> {
-    let text = trim_trailing_terminators(text);
+    let text = strip_inline_comment(text);
+    let text = trim_trailing_terminators(&text);
     if text.is_empty() {
         return Err("missing predicate".into());
     }
@@ -425,7 +521,8 @@ fn parse_object(
     blank_id_seq: &mut usize,
     triples: &mut Vec<Triple>,
 ) -> Result<Node, String> {
-    let o = trim_trailing_terminators(o);
+    let o = strip_inline_comment(o);
+    let o = trim_trailing_terminators(&o);
     // Choose the parser based on the syntactic form of the object token.
     if contains_bare_whitespace(o)
         && !o.starts_with('<')
@@ -449,20 +546,6 @@ fn parse_object(
     }
 }
 
-fn parse_object_simple(o: &str, prefixes: &BTreeMap<String, String>) -> Result<Node, String> {
-    let o = trim_trailing_terminators(o);
-    if contains_bare_whitespace(o) && !o.starts_with('<') && !o.starts_with('"') && !o.starts_with("_:") {
-        return Err("unexpected whitespace in object".into());
-    }
-    if o.starts_with('"') {
-        parse_literal(o, prefixes, None)
-    } else if o.starts_with("_:") {
-        Ok(Node::Blank(o.to_string()))
-    } else {
-        Ok(Node::Iri(expand_term(o, prefixes, None)?))
-    }
-}
-
 fn parse_blank_node_property_list(
     input: &str,
     prefixes: &BTreeMap<String, String>,
@@ -479,6 +562,7 @@ fn parse_blank_node_property_list(
     let clauses = split_top_level(inner.trim(), ';');
     let mut saw_predicate = false;
     for clause in clauses {
+        let clause = strip_inline_comment(&clause);
         let clause = clause.trim();
         if clause.is_empty() {
             continue;
@@ -508,6 +592,7 @@ fn parse_rdf_collection(
     let mut cursor = inner.trim();
     while !cursor.trim().is_empty() {
         let (frag, next) = take_object_fragment(cursor).ok_or("malformed RDF collection")?;
+        let frag = strip_inline_comment(frag);
         items.push(frag.trim().to_string());
         cursor = next.trim_start();
     }
@@ -614,6 +699,41 @@ fn trim_trailing_terminators(input: &str) -> &str {
         }
         return trimmed;
     }
+}
+
+fn strip_inline_comment(input: &str) -> String {
+    let mut out = String::new();
+    let mut in_string = false;
+    let mut in_iri = false;
+    let mut escaped = false;
+    let mut bracket_depth = 0usize;
+    let mut paren_depth = 0usize;
+
+    for ch in input.chars() {
+        if ch == '#' && !in_string && !in_iri && bracket_depth == 0 && paren_depth == 0 {
+            break;
+        }
+        match ch {
+            '"' if !in_iri && !escaped => in_string = !in_string,
+            '<' if !in_string => in_iri = true,
+            '>' if in_iri && !escaped => in_iri = false,
+            '[' if !in_string && !in_iri => bracket_depth += 1,
+            ']' if !in_string && !in_iri => bracket_depth = bracket_depth.saturating_sub(1),
+            '(' if !in_string && !in_iri => paren_depth += 1,
+            ')' if !in_string && !in_iri => paren_depth = paren_depth.saturating_sub(1),
+            '\\' if in_string && !escaped => {
+                escaped = true;
+                out.push(ch);
+                continue;
+            }
+            _ => {}
+        }
+        out.push(ch);
+        if ch != '\\' {
+            escaped = false;
+        }
+    }
+    out
 }
 
 fn contains_bare_whitespace(input: &str) -> bool {
@@ -792,7 +912,7 @@ fn serialize_turtle(graph: &LodGraph) -> String {
     if !graph.prefixes.is_empty() || graph.base.is_some() {
         out.push('\n');
     }
-    for t in sorted_triples(graph) {
+    for t in normalized_triples(graph) {
         out.push_str(&format!(
             "{} <{}> {} .\n",
             node_to_turtle(&t.subject),
@@ -804,7 +924,7 @@ fn serialize_turtle(graph: &LodGraph) -> String {
 }
 
 fn serialize_ntriples(graph: &LodGraph) -> String {
-    sorted_triples(graph)
+    normalized_triples(graph)
         .iter()
         .map(|t| {
             format!(
@@ -841,7 +961,7 @@ fn node_to_nt(n: &Node) -> String {
 
 fn serialize_jsonld(graph: &LodGraph) -> Result<String, LodError> {
     let mut nodes = Vec::new();
-    for t in sorted_triples(graph) {
+    for t in normalized_triples(graph) {
         nodes.push(serde_json::json!({
             "@id": node_id(&t.subject),
             t.predicate.clone(): object_json(&t.object),
@@ -880,6 +1000,32 @@ fn sorted_triples(graph: &LodGraph) -> Vec<Triple> {
     let mut triples = graph.triples.clone();
     triples.sort();
     triples
+}
+
+fn normalized_triples(graph: &LodGraph) -> Vec<Triple> {
+    let mut triples = sorted_triples(graph);
+    let mut blank_map = BTreeMap::new();
+    let mut blank_seq = 0usize;
+    for triple in &mut triples {
+        normalize_node(&mut triple.subject, &mut blank_map, &mut blank_seq);
+        normalize_node(&mut triple.object, &mut blank_map, &mut blank_seq);
+    }
+    triples.dedup();
+    triples
+}
+
+fn normalize_node(node: &mut Node, blank_map: &mut BTreeMap<String, String>, blank_seq: &mut usize) {
+    match node {
+        Node::Blank(id) => {
+            let normalized = blank_map.entry(id.clone()).or_insert_with(|| {
+                let next = format!("_:b{blank_seq}");
+                *blank_seq += 1;
+                next
+            });
+            *id = normalized.clone();
+        }
+        Node::Literal { .. } | Node::Iri(_) => {}
+    }
 }
 
 fn parse_jsonld_subset(content: &str) -> Result<LodGraph, LodError> {

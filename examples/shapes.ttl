@@ -1,5 +1,105 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix ex: <https://example.org/> .
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ex:PersonShape a sh:NodeShape .
+ex:BusTripShape a sh:NodeShape ;
+  sh:targetClass schema:BusTrip ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:provider ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:departureStation ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:arrivalStation ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:vehicle ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:departureTime ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime
+  ] ;
+  sh:property [
+    sh:path schema:arrivalTime ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime
+  ] ;
+  sh:property [
+    sh:path schema:distance ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal
+  ] .
+
+ex:OrganizationShape a sh:NodeShape ;
+  sh:targetClass schema:Organization ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .
+
+ex:BusStationShape a sh:NodeShape ;
+  sh:targetClass schema:BusStation ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:address ;
+    sh:minCount 1
+  ] .
+
+ex:BusOrCoachShape a sh:NodeShape ;
+  sh:targetClass schema:BusOrCoach ;
+  sh:property [
+    sh:path schema:identifier ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:provider ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] .
+
+ex:PostalAddressShape a sh:NodeShape ;
+  sh:targetClass schema:PostalAddress ;
+  sh:property [
+    sh:path schema:streetAddress ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:addressLocality ;
+    sh:minCount 1
+  ] .
+
+ex:PlaceShape a sh:NodeShape ;
+  sh:targetClass schema:Place ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .
+
+ex:AdministrativeAreaShape a sh:NodeShape ;
+  sh:targetClass schema:AdministrativeArea ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .

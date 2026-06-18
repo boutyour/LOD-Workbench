@@ -1,0 +1,18 @@
+@prefix ex: <https://example.org/library/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:book-1 a schema:Book ;
+  schema:name "The Graph Handbook"@en ;
+  schema:author "A. Writer" ;
+  schema:isbn "978-1-23456-789-7" ;
+  schema:datePublished "2024-06-01"^^xsd:date ;
+  schema:numberOfPages "240"^^xsd:integer .
+
+ex:book-2 a schema:Book ;
+  schema:name "Semantic Web Notes"@en ;
+  schema:author "B. Researcher" ;
+  schema:isPartOf ex:series-1 .
+
+ex:series-1 a schema:BookSeries ;
+  schema:name "Linked Data Series" .

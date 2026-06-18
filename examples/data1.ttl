@@ -1,0 +1,10 @@
+@prefix ex: <https://example.org/people/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:alice a foaf:Person ;
+  foaf:name "Alice" ;
+  foaf:mbox "alice@example.org" .
+
+ex:bob a foaf:Person ;
+  foaf:name "Bob" ;
+  foaf:knows ex:alice .

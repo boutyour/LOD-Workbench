@@ -1,0 +1,35 @@
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:route-42 a schema:BusTrip ;
+  schema:name "Airport Express"@en ;
+  schema:provider ex:metro-transit ;
+  schema:departureTime "2026-06-17T08:30:00Z"^^xsd:dateTime ;
+  schema:distance "12.4"^^xsd:decimal ;
+  schema:amenityFeature (
+    "Wi-Fi"
+    "USB charging"
+    "Wheelchair access"
+  ) ;
+  schema:contactPoint [
+    a schema:ContactPoint ;
+    schema:telephone "+212-555-0142" ;
+    schema:contactType "customer support"
+  ] .
+
+ex:metro-transit a schema:Organization ;
+  schema:name "Metro Transit" ;
+  schema:member [
+    a schema:Person ;
+    schema:name "Amina El Idrissi" ;
+    schema:jobTitle "Operations lead"
+  ] .
+
+ex:route-42 schema:keywords [
+  rdf:type rdf:Bag ;
+  rdf:_1 "airport" ;
+  rdf:_2 "bus" ;
+  rdf:_3 "rail"
+] .

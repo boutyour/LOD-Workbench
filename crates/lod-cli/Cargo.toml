@@ -12,5 +12,5 @@ path = "src/main.rs"
 [dependencies]
 anyhow.workspace = true
 clap.workspace = true
-lod-core = { path = "../lod-core" }
+lod-core = { path = "../lod-core", features = ["rudof-shacl"] }
 serde_json.workspace = true

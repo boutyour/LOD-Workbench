@@ -1,0 +1,36 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://example.org/library/> .
+
+ex:BookShape a sh:NodeShape ;
+  sh:targetClass schema:Book ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:author ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:isbn ;
+    sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path schema:datePublished ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path schema:numberOfPages ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1
+  ] .
+
+ex:BookSeriesShape a sh:NodeShape ;
+  sh:targetClass schema:BookSeries ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .

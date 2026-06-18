@@ -1,0 +1,44 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://example.org/transport/> .
+
+ex:BusTripCoreShape a sh:NodeShape ;
+  sh:targetClass schema:BusTrip ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:provider ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:contactPoint ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:vehicle ;
+    sh:minCount 1 ;
+    sh:message "Every sample bus trip should declare a vehicle resource."
+  ] .
+
+ex:BusTripDistanceWarningShape a sh:NodeShape ;
+  sh:targetClass schema:BusTrip ;
+  sh:property [
+    sh:path schema:distance ;
+    sh:datatype xsd:integer ;
+    sh:severity sh:Warning ;
+    sh:minCount 1 ;
+    sh:message "Distance should ideally be stored as an integer in this sample."
+  ] .
+
+ex:BusTripOperatorInfoShape a sh:NodeShape ;
+  sh:targetClass schema:BusTrip ;
+  sh:property [
+    sh:path schema:operator ;
+    sh:minCount 1 ;
+    sh:severity sh:Info ;
+    sh:message "Operator is optional in the sample, but useful metadata."
+  ] .

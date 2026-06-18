@@ -75,11 +75,37 @@ pub struct InspectionReport {
 }
 
 /// A validation issue produced by syntax or IRI checks.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ValidationIssue {
     pub severity: String,
     pub message: String,
     pub line: Option<usize>,
+    pub column: Option<usize>,
+    pub token: Option<String>,
+    pub suggestion: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub focus_node: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub constraint_component: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_shape: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details: Option<String>,
+}
+
+/// Output formats supported for validation reports written to disk.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ValidationReportFormat {
+    Html,
+    Json,
+    Text,
 }
 
 /// Validation result plus the list of issues found.
@@ -112,6 +138,7 @@ pub struct ValidationRequest {
     pub data_graph_path: String,
     pub shapes_graph_path: Option<String>,
     pub report_path: Option<String>,
+    pub report_format: Option<ValidationReportFormat>,
 }
 
 /// CSV-to-RDF mapping request.

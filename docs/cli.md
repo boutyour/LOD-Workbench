@@ -7,7 +7,7 @@ The CLI is the quickest way to run the toolkit locally.
 ## Command Summary
 
 - `inspect` reads RDF and prints summary metrics
-- `validate` checks syntax and IRI quality
+- `validate` checks syntax, IRI quality, and optional SHACL constraints
 - `convert` transforms RDF between supported formats
 - `map` turns CSV rows into RDF triples
 - `visualize` writes an HTML visualization report
@@ -25,6 +25,13 @@ Validate a graph and write a report:
 ```bash
 cargo run -p lod -- validate examples/data.ttl examples/shapes.ttl \
   --report reports/report.html
+```
+
+Run validation with Rudof-powered SHACL constraints:
+
+```bash
+cargo run -p lod --features lod-core/rudof-shacl -- validate \
+  examples/data.ttl examples/shapes.ttl
 ```
 
 Convert RDF into N-Triples:

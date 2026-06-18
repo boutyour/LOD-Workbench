@@ -49,6 +49,53 @@ impl LodWorkbench {
         self.validator
             .validate_content(content, format, shapes_graph_path, report_path)
     }
+    pub fn validate_content_with_format(
+        &self,
+        content: &str,
+        format: RdfFormat,
+        shapes_graph_path: Option<String>,
+        report_path: Option<String>,
+        report_format: Option<ValidationReportFormat>,
+    ) -> Result<ValidationReport, LodError> {
+        self.validator
+            .validate_content_with_format(content, format, shapes_graph_path, report_path, report_format)
+    }
+    pub fn validate_content_with_shapes(
+        &self,
+        content: &str,
+        format: RdfFormat,
+        shapes_content: Option<&str>,
+        shapes_format: Option<RdfFormat>,
+        report_path: Option<String>,
+        report_format: Option<ValidationReportFormat>,
+    ) -> Result<ValidationReport, LodError> {
+        self.validator.validate_content_with_shapes(
+            content,
+            format,
+            shapes_content,
+            shapes_format,
+            report_path,
+            report_format,
+        )
+    }
+    pub fn validate_content_with_shapes_report(
+        &self,
+        content: &str,
+        format: RdfFormat,
+        shapes_content: Option<&str>,
+        shapes_format: Option<RdfFormat>,
+        report_path: Option<String>,
+        report_format: Option<ValidationReportFormat>,
+    ) -> Result<ValidationReport, LodError> {
+        self.validator.validate_content_with_shapes_report(
+            content,
+            format,
+            shapes_content,
+            shapes_format,
+            report_path,
+            report_format,
+        )
+    }
     pub fn map_csv_to_rdf(&self, req: MappingRequest) -> Result<(), LodError> {
         self.mapper.map_csv_to_rdf(req)
     }

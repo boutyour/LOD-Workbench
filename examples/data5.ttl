@@ -1,0 +1,47 @@
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:route-99 a schema:BusTrip ;
+  schema:name "City Loop"@en ;
+  schema:provider ex:metro-transit ;
+  schema:departureTime "2026-06-17T08:30:00Z"^^xsd:dateTime ;
+  schema:arrivalTime "2026-06-17T09:15:00Z"^^xsd:dateTime ;
+  schema:distance "14.8"^^xsd:decimal ;
+  schema:vehicle ex:bus-21 ;
+  schema:contactPoint [
+    a schema:ContactPoint ;
+    schema:telephone "+212-555-0110" ;
+    schema:contactType "customer support"
+  ] ;
+  schema:amenityFeature (
+    "Wi-Fi"
+    "USB charging"
+    "Wheelchair access"
+    "Live departures"
+  ) ;
+  schema:keywords [ rdf:type rdf:Bag ;
+    rdf:_1 "city" ;
+    rdf:_2 "loop" ;
+    rdf:_3 "express" ;
+    rdf:_4 "night"
+  ] .
+
+ex:metro-transit a schema:Organization ;
+  schema:name "Metro Transit" ;
+  schema:member [
+    a schema:Person ;
+    schema:name "Amina El Idrissi" ;
+    schema:jobTitle "Operations lead" ;
+    schema:birthDate "1990-04-15"^^xsd:date
+  ] ;
+  schema:areaServed ex:metro-area .
+
+ex:bus-21 a schema:BusOrCoach ;
+  schema:identifier "BUS-21" ;
+  schema:name "Night Shuttle" ;
+  schema:provider ex:metro-transit .
+
+ex:metro-area a schema:AdministrativeArea ;
+  schema:name "Metro City" .

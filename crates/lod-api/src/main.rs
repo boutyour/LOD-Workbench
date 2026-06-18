@@ -1,11 +1,14 @@
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Response},
     routing::{get, post},
     Json, Router,
 };
-use lod_core::{parser, LodGraph, LodWorkbench, RdfFormat, VisualizationEdge, VisualizationGraph, VisualizationNode};
+use lod_core::{
+    parser, render_validation_report, LodGraph, LodWorkbench, RdfFormat, ValidationReport, ValidationReportFormat,
+    VisualizationEdge, VisualizationGraph, VisualizationNode,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeSet, net::SocketAddr, sync::Arc};
 use tower_http::cors::CorsLayer;
@@ -19,6 +22,12 @@ struct AppState {
 struct TextGraphRequest {
     content: String,
     format: String,
+    #[serde(default)]
+    report_format: Option<String>,
+    #[serde(default)]
+    shapes_content: Option<String>,
+    #[serde(default)]
+    shapes_format: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -38,6 +47,12 @@ struct VisualizeTextResponse {
     graph: VisualizationGraph,
     jsonld: String,
     triples: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ValidationTextResponse {
+    report: ValidationReport,
+    format: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -70,6 +85,7 @@ fn build_app() -> Router {
         .route("/api/health", get(|| async { "ok" }))
         .route("/api/inspect-text", post(inspect_text))
         .route("/api/validate-text", post(validate_text))
+        .route("/api/validate-text-detail", post(validate_text_detail))
         .route("/api/convert-text", post(convert_text))
         .route("/api/visualize-text", post(visualize_text))
         .layer(CorsLayer::permissive())
@@ -98,8 +114,49 @@ async fn validate_text(State(state): State<AppState>, Json(req): Json<TextGraphR
         Ok(f) => f,
         Err(e) => return api_error(StatusCode::BAD_REQUEST, e.to_string()),
     };
-    match state.lod.validate_content(&req.content, fmt, None, None) {
-        Ok(report) => Json(report).into_response(),
+    let shapes_format = match parse_optional_rdf_format(req.shapes_format.as_deref()) {
+        Ok(f) => f,
+        Err(e) => return api_error(StatusCode::BAD_REQUEST, e),
+    };
+    let report_format = match parse_report_format(req.report_format.as_deref()) {
+        Ok(f) => f,
+        Err(e) => return api_error(StatusCode::BAD_REQUEST, e),
+    };
+    match state.lod.validate_content_with_shapes(
+        &req.content,
+        fmt,
+        req.shapes_content.as_deref(),
+        shapes_format,
+        None,
+        Some(report_format),
+    ) {
+        Ok(report) => validation_response(report, report_format),
+        Err(e) => api_error(StatusCode::BAD_REQUEST, e.to_string()),
+    }
+}
+
+async fn validate_text_detail(State(state): State<AppState>, Json(req): Json<TextGraphRequest>) -> impl IntoResponse {
+    let fmt = match RdfFormat::parse(&req.format) {
+        Ok(f) => f,
+        Err(e) => return api_error(StatusCode::BAD_REQUEST, e.to_string()),
+    };
+    let shapes_format = match parse_optional_rdf_format(req.shapes_format.as_deref()) {
+        Ok(f) => f,
+        Err(e) => return api_error(StatusCode::BAD_REQUEST, e),
+    };
+    match state.lod.validate_content_with_shapes_report(
+        &req.content,
+        fmt,
+        req.shapes_content.as_deref(),
+        shapes_format,
+        None,
+        None,
+    ) {
+        Ok(report) => Json(ValidationTextResponse {
+            format: "json".into(),
+            report,
+        })
+        .into_response(),
         Err(e) => api_error(StatusCode::BAD_REQUEST, e.to_string()),
     }
 }
@@ -219,17 +276,52 @@ fn api_error(code: StatusCode, error: String) -> axum::response::Response {
         .into_response()
 }
 
+fn parse_report_format(value: Option<&str>) -> Result<ValidationReportFormat, String> {
+    match value.map(|v| v.to_ascii_lowercase()) {
+        None => Ok(ValidationReportFormat::Json),
+        Some(v) if v == "json" => Ok(ValidationReportFormat::Json),
+        Some(v) if v == "html" => Ok(ValidationReportFormat::Html),
+        Some(v) if v == "text" || v == "txt" => Ok(ValidationReportFormat::Text),
+        Some(v) => Err(format!("unsupported validation report format: {v}")),
+    }
+}
+
+fn parse_optional_rdf_format(value: Option<&str>) -> Result<Option<RdfFormat>, String> {
+    value.map(RdfFormat::parse).transpose().map_err(|e| e.to_string())
+}
+
+fn validation_response(report: ValidationReport, format: ValidationReportFormat) -> Response {
+    match format {
+        ValidationReportFormat::Json => Json(ValidationTextResponse {
+            format: "json".into(),
+            report,
+        })
+        .into_response(),
+        ValidationReportFormat::Html => {
+            Html(render_validation_report(&report, ValidationReportFormat::Html)).into_response()
+        }
+        ValidationReportFormat::Text => (
+            [(axum::http::header::CONTENT_TYPE, "text/plain; charset=utf-8")],
+            render_validation_report(&report, ValidationReportFormat::Text),
+        )
+            .into_response(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use axum::body::to_bytes;
-    use lod_core::{InspectionReport, ValidationReport};
+    use lod_core::InspectionReport;
 
     #[tokio::test]
     async fn visualize_text_returns_graph_payload() {
         let response = visualize_text(Json(TextGraphRequest {
             content: "@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" .\n".into(),
             format: "turtle".into(),
+            report_format: None,
+            shapes_content: None,
+            shapes_format: None,
         }))
         .await
         .into_response();
@@ -251,6 +343,9 @@ mod tests {
             Json(TextGraphRequest {
                 content: "@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" .\n".into(),
                 format: "turtle".into(),
+                report_format: None,
+                shapes_content: None,
+                shapes_format: None,
             }),
         )
         .await
@@ -271,6 +366,9 @@ mod tests {
             Json(TextGraphRequest {
                 content: "@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" .\n".into(),
                 format: "turtle".into(),
+                report_format: None,
+                shapes_content: None,
+                shapes_format: None,
             }),
         )
         .await
@@ -278,8 +376,69 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-        let payload: ValidationReport = serde_json::from_slice(&bytes).unwrap();
-        assert!(payload.conforms);
+        let payload: ValidationTextResponse = serde_json::from_slice(&bytes).unwrap();
+        assert!(payload.report.conforms);
+    }
+
+    #[tokio::test]
+    async fn validate_text_detail_returns_machine_readable_fields() {
+        let response = validate_text_detail(
+            State(AppState {
+                lod: Arc::new(LodWorkbench::default()),
+            }),
+            Json(TextGraphRequest {
+                content: "@prefix ex: <https://example.org/people/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\nex:bob a foaf:Person ; foaf:name \"Bob\" .\n".into(),
+                format: "turtle".into(),
+                report_format: None,
+                shapes_content: Some(
+                    "@prefix sh: <http://www.w3.org/ns/shacl#> .\n\
+                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\
+                     @prefix ex: <https://example.org/people/> .\n\
+                     ex:PersonShape a sh:NodeShape ;\n\
+                     sh:targetClass foaf:Person ;\n\
+                     sh:property [ sh:path foaf:mbox ; sh:minCount 1 ; sh:nodeKind sh:IRI ] .\n"
+                        .into(),
+                ),
+                shapes_format: None,
+            }),
+        )
+        .await
+        .into_response();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let bytes = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let payload: ValidationTextResponse = serde_json::from_slice(&bytes).unwrap();
+        assert!(!payload.report.issues.is_empty());
+        assert!(payload.report.issues.iter().any(|i| i.focus_node.is_some()));
+        assert!(payload.report.issues.iter().any(|i| i.constraint_component.is_some()));
+    }
+
+    #[tokio::test]
+    async fn validate_text_accepts_inline_shapes() {
+        let response = validate_text(
+            State(AppState {
+                lod: Arc::new(LodWorkbench::default()),
+            }),
+            Json(TextGraphRequest {
+                content: "@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" .\n".into(),
+                format: "turtle".into(),
+                report_format: None,
+                shapes_content: Some(
+                    "@prefix sh: <http://www.w3.org/ns/shacl#> .\n\
+                     @prefix ex: <https://example.org/> .\n\
+                     ex:AnyShape a sh:NodeShape .\n"
+                        .into(),
+                ),
+                shapes_format: Some("turtle".into()),
+            }),
+        )
+        .await
+        .into_response();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let bytes = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let payload: ValidationTextResponse = serde_json::from_slice(&bytes).unwrap();
+        assert!(payload.report.conforms);
     }
 
     #[tokio::test]

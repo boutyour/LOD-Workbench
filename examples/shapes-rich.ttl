@@ -1,0 +1,85 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:BusTripShape a sh:NodeShape ;
+  sh:targetClass schema:BusTrip ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:departureTime ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:provider ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI
+  ] ;
+  sh:property [
+    sh:path schema:contactPoint ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:amenityFeature ;
+    sh:minCount 1
+  ] .
+
+ex:OrganizationShape a sh:NodeShape ;
+  sh:targetClass schema:Organization ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .
+
+ex:PersonShape a sh:NodeShape ;
+  sh:targetClass schema:Person ;
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1
+  ] .
+
+ex:ContactPointShape a sh:NodeShape ;
+  sh:targetClass schema:ContactPoint ;
+  sh:property [
+    sh:path schema:telephone ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path schema:contactType ;
+    sh:minCount 1
+  ] .
+
+ex:AmenityListShape a sh:NodeShape ;
+  sh:targetObjectsOf schema:amenityFeature ;
+  sh:nodeKind sh:BlankNode ;
+  sh:property [
+    sh:path rdf:first ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path rdf:rest ;
+    sh:minCount 1
+  ] .
+
+ex:KeywordsBagShape a sh:NodeShape ;
+  sh:targetObjectsOf schema:keywords ;
+  sh:nodeKind sh:BlankNode ;
+  sh:property [
+    sh:path rdf:type ;
+    sh:hasValue rdf:Bag
+  ] ;
+  sh:property [
+    sh:path rdf:_1 ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path rdf:_2 ;
+    sh:minCount 1
+  ] ;
+  sh:property [
+    sh:path rdf:_3 ;
+    sh:minCount 1
+  ] .

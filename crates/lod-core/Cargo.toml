@@ -7,8 +7,20 @@ license.workspace = true
 
 [dependencies]
 csv.workspace = true
+oxiri.workspace = true
+rio_api.workspace = true
+rio_turtle.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
 thiserror.workspace = true
 uuid.workspace = true
+
+[dependencies.rudof_lib]
+version = "0.3.4"
+default-features = false
+optional = true
+
+[features]
+default = []
+rudof-shacl = ["dep:rudof_lib"]

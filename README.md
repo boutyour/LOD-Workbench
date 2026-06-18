@@ -206,7 +206,14 @@ cargo run -p lod -- convert examples/data.ttl /tmp/data.jsonld --from turtle --t
 cargo run -p lod -- validate examples/data.ttl examples/shapes.ttl --report reports/report.html
 ```
 
-V1 performs syntax validation, IRI checks, and a placeholder notice for SHACL. Full SHACL validation is planned for V1.1 through a dedicated adapter.
+By default, validation performs syntax and IRI checks. Build with the optional
+`lod-core/rudof-shacl` feature to enable real SHACL constraint validation
+through Rudof:
+
+```bash
+cargo run -p lod --features lod-core/rudof-shacl -- validate \
+  examples/data.ttl examples/shapes.ttl
+```
 
 ### Map CSV to RDF
 

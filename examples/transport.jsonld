@@ -1,0 +1,48 @@
+{
+  "@context": {
+    "ex": "https://example.org/transport/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "https://example.org/transport/route-42",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+        "@id": "https://schema.org/BusTrip"
+      },
+      "https://schema.org/name": {
+        "@value": "Airport Express",
+        "@language": "en"
+      },
+      "https://schema.org/provider": {
+        "@id": "https://example.org/transport/metro-transit"
+      },
+      "https://schema.org/departureTime": {
+        "@value": "2026-06-17T08:30:00Z",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      },
+      "https://schema.org/distance": {
+        "@value": "12.4",
+        "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+      }
+    },
+    {
+      "@id": "https://example.org/transport/metro-transit",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+        "@id": "https://schema.org/Organization"
+      },
+      "https://schema.org/name": "Metro Transit"
+    },
+    {
+      "@id": "https://example.org/transport/bus-12",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+        "@id": "https://schema.org/BusOrCoach"
+      },
+      "https://schema.org/identifier": "BUS-12",
+      "https://schema.org/provider": {
+        "@id": "https://example.org/transport/metro-transit"
+      }
+    }
+  ]
+}

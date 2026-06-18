@@ -1,0 +1,23 @@
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:route-7 a schema:BusTrip ;
+  schema:name "Evening Shuttle"@en ;
+  schema:provider ex:city-transit ;
+  schema:departureTime "2026-06-18T18:30:00Z"^^xsd:dateTime ;
+  schema:arrivalTime "2026-06-18T19:10:00Z"^^xsd:dateTime ;
+  schema:distance "18.2"^^xsd:decimal ;
+  schema:contactPoint [
+    a schema:ContactPoint ;
+    schema:telephone "+212-555-0107" ;
+    schema:contactType "support"
+  ] .
+
+ex:city-transit a schema:Organization ;
+  schema:name "City Transit" ;
+  schema:member [
+    a schema:Person ;
+    schema:name "Sara El Amrani" ;
+    schema:jobTitle "Operations manager"
+  ] .

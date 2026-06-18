@@ -1,0 +1,10 @@
+<https://example.org/transport/route-42> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/BusTrip> .
+<https://example.org/transport/route-42> <https://schema.org/name> "Airport Express"@en .
+<https://example.org/transport/route-42> <https://schema.org/provider> <https://example.org/transport/metro-transit> .
+<https://example.org/transport/route-42> <https://schema.org/departureTime> "2026-06-17T08:30:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://example.org/transport/route-42> <https://schema.org/distance> "12.4"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<https://example.org/transport/metro-transit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Organization> .
+<https://example.org/transport/metro-transit> <https://schema.org/name> "Metro Transit" .
+<https://example.org/transport/bus-12> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/BusOrCoach> .
+<https://example.org/transport/bus-12> <https://schema.org/identifier> "BUS-12" .
+<https://example.org/transport/bus-12> <https://schema.org/provider> <https://example.org/transport/metro-transit> .

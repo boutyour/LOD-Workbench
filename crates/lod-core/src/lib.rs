@@ -1,8 +1,8 @@
 //! **LOD Core** — The shared domain and services for the LOD Workbench toolkit.
 //!
 //! This crate provides the core data model ([`LodGraph`], [`Triple`], [`Node`]),
-//! RDF parsing and serialization for a compact subset of Turtle, N-Triples, and
-//! JSON-LD, plus service modules for conversion, inspection, validation, CSV→RDF
+//! RDF parsing and serialization for Turtle, N-Triples, and a compact JSON-LD
+//! subset, plus service modules for conversion, inspection, validation, CSV→RDF
 //! mapping, and HTML graph visualization.
 
 pub mod convert;
@@ -38,6 +38,7 @@ mod tests {
             data_graph_path: String::new(),
             shapes_graph_path: None,
             report_path: None,
+            report_format: None,
         };
         // Empty path will error with I/O, which is fine — we tested construction.
         let _ = wb.validate(req);
@@ -62,6 +63,7 @@ mod tests {
             data_graph_path: "/nonexistent/file.ttl".into(),
             shapes_graph_path: None,
             report_path: None,
+            report_format: None,
         };
         let result = svc.validate(req);
         assert!(result.is_err());
