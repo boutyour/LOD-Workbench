@@ -7,7 +7,7 @@ This roadmap focuses on the beta series and the path to `v1.0.0`.
 Current release line:
 
 - keep the single CI workflow green
-- keep the GitHub Pages preview available
+- keep a simple preview build available
 - stabilize the parser on the supported RDF subset
 - keep the web UI responsive, readable, and predictable
 - make the editor save/open flow reliable
