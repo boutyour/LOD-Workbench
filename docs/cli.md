@@ -8,7 +8,8 @@ The CLI is the quickest way to run the toolkit locally.
 
 - `inspect` reads RDF and prints summary metrics
 - `validate` checks syntax, IRI quality, and optional SHACL constraints
-- `convert` transforms RDF between supported formats
+- `convert` transforms RDF between supported formats, including Turtle,
+  N-Triples, RDF/XML, TriG, and JSON-LD
 - `map` turns CSV rows into RDF triples
 - `visualize` writes an HTML visualization report
 
@@ -18,6 +19,13 @@ Inspect a Turtle file:
 
 ```bash
 cargo run -p lod -- inspect examples/data.ttl
+```
+
+Inspect RDF/XML or TriG:
+
+```bash
+cargo run -p lod -- inspect examples/transport.rdf
+cargo run -p lod -- inspect examples/transport.trig
 ```
 
 Validate a graph and write a report:
@@ -39,6 +47,15 @@ Convert RDF into N-Triples:
 ```bash
 cargo run -p lod -- convert examples/data.ttl /tmp/data.nt --from turtle \
   --to n-triples
+```
+
+Convert into RDF/XML or TriG:
+
+```bash
+cargo run -p lod -- convert examples/data.ttl /tmp/data.rdf --from turtle \
+  --to rdf/xml
+cargo run -p lod -- convert examples/data.ttl /tmp/data.trig --from turtle \
+  --to trig
 ```
 
 Map CSV to RDF:

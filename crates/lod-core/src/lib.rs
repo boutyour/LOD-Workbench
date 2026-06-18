@@ -1,9 +1,9 @@
 //! **LOD Core** — The shared domain and services for the LOD Workbench toolkit.
 //!
 //! This crate provides the core data model ([`LodGraph`], [`Triple`], [`Node`]),
-//! RDF parsing and serialization for Turtle, N-Triples, and a compact JSON-LD
-//! subset, plus service modules for conversion, inspection, validation, CSV→RDF
-//! mapping, and HTML graph visualization.
+//! RDF parsing and serialization for Turtle, N-Triples, RDF/XML, TriG, and a
+//! compact JSON-LD subset, plus service modules for conversion, inspection,
+//! validation, CSV→RDF mapping, and HTML graph visualization.
 
 pub mod convert;
 pub mod error;
@@ -86,6 +86,9 @@ mod tests {
         assert_eq!(RdfFormat::from_path("data.ttl").unwrap(), RdfFormat::Turtle);
         assert_eq!(RdfFormat::from_path("data.nt").unwrap(), RdfFormat::NTriples);
         assert_eq!(RdfFormat::from_path("data.jsonld").unwrap(), RdfFormat::JsonLd);
+        assert_eq!(RdfFormat::from_path("data.rdf").unwrap(), RdfFormat::RdfXml);
+        assert_eq!(RdfFormat::from_path("data.xml").unwrap(), RdfFormat::RdfXml);
+        assert_eq!(RdfFormat::from_path("data.trig").unwrap(), RdfFormat::TriG);
         assert!(RdfFormat::from_path("data.xyz").is_err());
     }
 
@@ -113,5 +116,12 @@ mod tests {
         };
         let result = svc.map_csv_to_rdf(req);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn format_parse_accepts_new_formats() {
+        assert_eq!(RdfFormat::parse("rdf/xml").unwrap(), RdfFormat::RdfXml);
+        assert_eq!(RdfFormat::parse("rdfxml").unwrap(), RdfFormat::RdfXml);
+        assert_eq!(RdfFormat::parse("trig").unwrap(), RdfFormat::TriG);
     }
 }

@@ -1,8 +1,11 @@
 use crate::{LodError, LodGraph, Node, RdfFormat, Triple};
 use oxiri::Iri;
+use oxrdf::{BlankNodeRef, GraphNameRef, LiteralRef, NamedNodeRef, NamedOrBlankNodeRef, QuadRef, TermRef, TripleRef};
 use rio_api::model::{Literal, Subject, Term};
 use rio_api::parser::TriplesParser;
 use rio_turtle::{NTriplesParser, TurtleParser};
+use oxrdfxml::{RdfXmlParser, RdfXmlSerializer};
+use oxttl::{TriGParser, TriGSerializer};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::fs;
@@ -19,6 +22,14 @@ pub fn read_graph(path: impl AsRef<Path>, format: Option<RdfFormat>) -> Result<L
         RdfFormat::NTriples => {
             let file = fs::File::open(path)?;
             parse_line_based_rdf_reader(BufReader::new(file))
+        }
+        RdfFormat::RdfXml => {
+            let file = fs::File::open(path)?;
+            parse_rdfxml_reader(BufReader::new(file))
+        }
+        RdfFormat::TriG => {
+            let file = fs::File::open(path)?;
+            parse_trig_reader(BufReader::new(file))
         }
         _ => {
             let content = fs::read_to_string(path)?;
@@ -43,6 +54,8 @@ pub fn parse_graph(content: &str, format: RdfFormat) -> Result<LodGraph, LodErro
         RdfFormat::Turtle => parse_turtle_rdf(content),
         RdfFormat::NTriples => parse_line_based_rdf(content),
         RdfFormat::JsonLd => parse_jsonld_subset(content),
+        RdfFormat::RdfXml => parse_rdfxml_content(content),
+        RdfFormat::TriG => parse_trig_content(content),
     }
 }
 
@@ -51,6 +64,8 @@ pub fn serialize_graph(graph: &LodGraph, format: RdfFormat) -> Result<String, Lo
         RdfFormat::Turtle => Ok(serialize_turtle(graph)),
         RdfFormat::NTriples => Ok(serialize_ntriples(graph)),
         RdfFormat::JsonLd => serialize_jsonld(graph),
+        RdfFormat::RdfXml => serialize_rdfxml(graph),
+        RdfFormat::TriG => serialize_trig(graph),
     }
 }
 
@@ -69,7 +84,59 @@ fn parse_line_based_rdf_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodErr
             });
             Ok(()) as Result<(), rio_turtle::TurtleError>
         })
-        .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    Ok(graph)
+}
+
+fn parse_rdfxml_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodError> {
+    let mut graph = LodGraph::default();
+    for triple in RdfXmlParser::new().for_reader(reader) {
+        let triple = triple.map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        graph.triples.push(Triple {
+            subject: oxrdf_named_or_blank_to_node(triple.subject.as_ref()),
+            predicate: triple.predicate.as_str().to_string(),
+            object: oxrdf_term_to_node(triple.object.as_ref()),
+        });
+    }
+    Ok(graph)
+}
+
+fn parse_trig_reader<R: BufRead>(reader: R) -> Result<LodGraph, LodError> {
+    let mut graph = LodGraph::default();
+    let mut parser = TriGParser::new().for_reader(reader);
+    while let Some(quad) = parser.next() {
+        let quad = quad.map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        push_quad(&mut graph, quad);
+    }
+    if let Some(base) = parser.base_iri() {
+        graph.base = Some(base.to_string());
+    }
+    for (prefix, iri) in parser.prefixes() {
+        graph.prefixes.insert(prefix.to_string(), iri.to_string());
+    }
+    Ok(graph)
+}
+
+fn parse_rdfxml_content(content: &str) -> Result<LodGraph, LodError> {
+    let mut graph = LodGraph::default();
+    for triple in RdfXmlParser::new().for_slice(content.as_bytes()) {
+        let triple = triple.map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        graph.triples.push(Triple {
+            subject: oxrdf_named_or_blank_to_node(triple.subject.as_ref()),
+            predicate: triple.predicate.as_str().to_string(),
+            object: oxrdf_term_to_node(triple.object.as_ref()),
+        });
+    }
+    Ok(graph)
+}
+
+fn parse_trig_content(content: &str) -> Result<LodGraph, LodError> {
+    let mut graph = LodGraph::default();
+    let mut parser = TriGParser::new().for_slice(content.as_bytes());
+    while let Some(quad) = parser.next() {
+        let quad = quad.map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        push_quad(&mut graph, quad);
+    }
     Ok(graph)
 }
 
@@ -137,6 +204,43 @@ fn rio_term_to_node(term: &Term<'_>) -> Node {
         Term::BlankNode(node) => Node::Blank(format!("_:{}", node.id)),
         Term::Literal(literal) => rio_literal_to_node(literal),
         Term::Triple(_) => Node::Blank("_:rdfstar_object".to_string()),
+    }
+}
+
+fn oxrdf_named_or_blank_to_node(node: oxrdf::NamedOrBlankNodeRef<'_>) -> Node {
+    match node {
+        oxrdf::NamedOrBlankNodeRef::NamedNode(node) => Node::Iri(node.as_str().to_string()),
+        oxrdf::NamedOrBlankNodeRef::BlankNode(node) => Node::Blank(format!("_:{}", node.as_str())),
+    }
+}
+
+fn oxrdf_term_to_node(term: oxrdf::TermRef<'_>) -> Node {
+    match term {
+        oxrdf::TermRef::NamedNode(node) => Node::Iri(node.as_str().to_string()),
+        oxrdf::TermRef::BlankNode(node) => Node::Blank(format!("_:{}", node.as_str())),
+        oxrdf::TermRef::Literal(literal) => Node::Literal {
+            value: literal.value().to_string(),
+            datatype: Some(literal.datatype().as_str().to_string()),
+            lang: literal.language().map(|lang| lang.to_string()),
+        },
+        _ => Node::Blank("_:rdfstar_object".to_string()),
+    }
+}
+
+fn push_quad(graph: &mut LodGraph, quad: oxrdf::Quad) {
+    let triple = Triple {
+        subject: oxrdf_named_or_blank_to_node(quad.subject.as_ref()),
+        predicate: quad.predicate.as_str().to_string(),
+        object: oxrdf_term_to_node(quad.object.as_ref()),
+    };
+    match quad.graph_name {
+        oxrdf::GraphName::DefaultGraph => graph.triples.push(triple),
+        oxrdf::GraphName::NamedNode(node) => {
+            graph.named_graphs.entry(node.as_str().to_string()).or_default().push(triple);
+        }
+        oxrdf::GraphName::BlankNode(node) => {
+            graph.named_graphs.entry(format!("_:{}", node.as_str())).or_default().push(triple);
+        }
     }
 }
 
@@ -939,6 +1043,73 @@ fn serialize_ntriples(graph: &LodGraph) -> String {
         + "\n"
 }
 
+fn serialize_rdfxml(graph: &LodGraph) -> Result<String, LodError> {
+    if !graph.named_graphs.is_empty() {
+        return Err(LodError::Validation(
+            "RDF/XML does not support named graphs; convert the dataset to TriG first".into(),
+        ));
+    }
+    let mut serializer = RdfXmlSerializer::new();
+    if let Some(base) = &graph.base {
+        serializer = serializer
+            .with_base_iri(base.clone())
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    for (prefix, iri) in &graph.prefixes {
+        serializer = serializer
+            .with_prefix(prefix.clone(), iri.clone())
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    let mut serializer = serializer.for_writer(Vec::new());
+    for triple in normalized_triples(graph) {
+        serializer
+            .serialize_triple(triple_to_oxrdf_triple_ref(&triple)?)
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    let bytes = serializer.finish().map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    String::from_utf8(bytes).map_err(|e| LodError::RdfParsing(e.to_string()))
+}
+
+fn serialize_trig(graph: &LodGraph) -> Result<String, LodError> {
+    let mut serializer = TriGSerializer::new();
+    if let Some(base) = &graph.base {
+        serializer = serializer
+            .with_base_iri(base.clone())
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    for (prefix, iri) in &graph.prefixes {
+        serializer = serializer
+            .with_prefix(prefix.clone(), iri.clone())
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    let mut serializer = serializer.for_writer(Vec::new());
+    for triple in normalized_triples(&LodGraph {
+        base: graph.base.clone(),
+        prefixes: graph.prefixes.clone(),
+        triples: graph.triples.clone(),
+        named_graphs: BTreeMap::new(),
+    }) {
+        serializer
+            .serialize_quad(triple_to_oxrdf_quad_ref(&triple, GraphNameRef::DefaultGraph)?)
+            .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    }
+    for (graph_name, triples) in &graph.named_graphs {
+        let graph_name = graph_name_to_ref(graph_name)?;
+        for triple in normalized_triples(&LodGraph {
+            base: None,
+            prefixes: BTreeMap::new(),
+            triples: triples.clone(),
+            named_graphs: BTreeMap::new(),
+        }) {
+            serializer
+                .serialize_quad(triple_to_oxrdf_quad_ref(&triple, graph_name)?)
+                .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+        }
+    }
+    let bytes = serializer.finish().map_err(|e| LodError::RdfParsing(e.to_string()))?;
+    String::from_utf8(bytes).map_err(|e| LodError::RdfParsing(e.to_string()))
+}
+
 fn node_to_turtle(n: &Node) -> String {
     node_to_nt(n)
 }
@@ -971,6 +1142,62 @@ fn serialize_jsonld(graph: &LodGraph) -> Result<String, LodError> {
     Ok(serde_json::to_string_pretty(&value)?)
 }
 
+fn triple_to_oxrdf_triple_ref(triple: &Triple) -> Result<TripleRef<'_>, LodError> {
+    Ok(TripleRef::new(
+        node_to_named_or_blank_ref(&triple.subject)?,
+        NamedNodeRef::new(&triple.predicate).map_err(|e| LodError::RdfParsing(e.to_string()))?,
+        node_to_term_ref(&triple.object)?,
+    ))
+}
+
+fn triple_to_oxrdf_quad_ref<'a>(triple: &'a Triple, graph_name: GraphNameRef<'a>) -> Result<QuadRef<'a>, LodError> {
+    Ok(QuadRef::new(
+        node_to_named_or_blank_ref(&triple.subject)?,
+        NamedNodeRef::new(&triple.predicate).map_err(|e| LodError::RdfParsing(e.to_string()))?,
+        node_to_term_ref(&triple.object)?,
+        graph_name,
+    ))
+}
+
+fn node_to_named_or_blank_ref(node: &Node) -> Result<NamedOrBlankNodeRef<'_>, LodError> {
+    match node {
+        Node::Iri(iri) => Ok(NamedNodeRef::new(iri).map_err(|e| LodError::RdfParsing(e.to_string()))?.into()),
+        Node::Blank(id) => Ok(blank_node_ref(id)?.into()),
+        Node::Literal { .. } => Err(LodError::RdfParsing("literal cannot be used as a subject".into())),
+    }
+}
+
+fn node_to_term_ref(node: &Node) -> Result<TermRef<'_>, LodError> {
+    match node {
+        Node::Iri(iri) => Ok(NamedNodeRef::new(iri).map_err(|e| LodError::RdfParsing(e.to_string()))?.into()),
+        Node::Blank(id) => Ok(blank_node_ref(id)?.into()),
+        Node::Literal { value, datatype, lang } => {
+            if let Some(lang) = lang {
+                Ok(LiteralRef::new_language_tagged_literal_unchecked(value, lang).into())
+            } else if let Some(datatype) = datatype {
+                let datatype = NamedNodeRef::new(datatype)
+                    .map_err(|e| LodError::RdfParsing(e.to_string()))?;
+                Ok(LiteralRef::new_typed_literal(value, datatype).into())
+            } else {
+                Ok(LiteralRef::new_simple_literal(value).into())
+            }
+        }
+    }
+}
+
+fn blank_node_ref(id: &str) -> Result<BlankNodeRef<'_>, LodError> {
+    let id = id.strip_prefix("_:").unwrap_or(id);
+    BlankNodeRef::new(id).map_err(|e| LodError::RdfParsing(e.to_string()))
+}
+
+fn graph_name_to_ref(name: &str) -> Result<GraphNameRef<'_>, LodError> {
+    if name.starts_with("_:") {
+        Ok(blank_node_ref(name)?.into())
+    } else {
+        Ok(NamedNodeRef::new(name).map_err(|e| LodError::RdfParsing(e.to_string()))?.into())
+    }
+}
+
 fn node_id(n: &Node) -> String {
     match n {
         Node::Iri(i) => i.clone(),
@@ -997,7 +1224,7 @@ fn object_json(n: &Node) -> Value {
 }
 
 fn sorted_triples(graph: &LodGraph) -> Vec<Triple> {
-    let mut triples = graph.triples.clone();
+    let mut triples = graph.all_triples().cloned().collect::<Vec<_>>();
     triples.sort();
     triples
 }

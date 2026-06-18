@@ -16,6 +16,8 @@ client or external tools.
 ## Request Shapes
 
 - inspection and validation requests send `content` plus an RDF `format`
+- supported RDF formats include `turtle`, `n-triples`, `json-ld`, `rdf/xml`,
+  and `trig`
 - conversion requests send `content`, `from`, and `to`
 - visualization requests send `content` plus an RDF `format`
 
@@ -28,12 +30,24 @@ curl -X POST http://127.0.0.1:8080/api/inspect-text \
 \nex:a ex:b \"c\" ."}'
 ```
 
+The same endpoints also accept RDF/XML and TriG:
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/inspect-text \
+  -H 'Content-Type: application/json' \
+  -d '{"format":"rdf/xml","content":"<?xml version=\"1.0\"?>\
+\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\
+\n</rdf:RDF>"}'
+```
+
 ## Response Notes
 
 - successful endpoints return JSON payloads
 - validation errors are normalized into a small error object
 - visualization responses include a graph payload and a JSON-LD payload for
   the frontend
+- TriG datasets preserve named graphs in the shared core model
+- RDF/XML serialization is available for single-graph RDF content
 
 ## Implementation Notes
 

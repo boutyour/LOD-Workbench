@@ -36,6 +36,7 @@ impl MappingService {
             base: None,
             prefixes: cfg.prefixes.clone(),
             triples: Vec::new(),
+            named_graphs: BTreeMap::new(),
         };
         let class_uri = expand(&cfg.class_uri, &cfg.prefixes);
         for result in reader.records() {

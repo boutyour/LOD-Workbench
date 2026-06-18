@@ -1,0 +1,21 @@
+@prefix ex: <https://example.org/transport/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+{
+  ex:route-42 a schema:BusTrip ;
+    schema:name "Airport Express"@en ;
+    schema:departureTime "2026-06-17T08:30:00Z"^^xsd:dateTime ;
+    schema:distance "12.4"^^xsd:decimal ;
+    schema:provider ex:metro-transit .
+}
+
+ex:graphs-people {
+  ex:metro-transit a schema:Organization ;
+    schema:name "Metro Transit" ;
+    schema:member ex:amina .
+
+  ex:amina a schema:Person ;
+    schema:name "Amina El Idrissi" ;
+    schema:jobTitle "Operations lead" .
+}

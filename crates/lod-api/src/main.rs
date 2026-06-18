@@ -189,7 +189,7 @@ async fn visualize_text(Json(req): Json<TextGraphRequest>) -> impl IntoResponse 
             Json(VisualizeTextResponse {
                 graph: preview,
                 jsonld,
-                triples: graph.triples.len(),
+                triples: graph.total_triples(),
             })
             .into_response()
         }
@@ -198,13 +198,13 @@ async fn visualize_text(Json(req): Json<TextGraphRequest>) -> impl IntoResponse 
 }
 
 fn build_visualization_graph(graph: &LodGraph) -> VisualizationGraph {
-    let subjects: BTreeSet<String> = graph.triples.iter().map(|t| node_label(&t.subject)).collect();
+    let subjects: BTreeSet<String> = graph.all_triples().map(|t| node_label(&t.subject)).collect();
     let mut nodes = std::collections::BTreeMap::new();
     let mut edges = Vec::new();
 
     // Deduplicate nodes by label so the browser graph stays compact and we do
     // not render one node per triple occurrence.
-    for (i, t) in graph.triples.iter().enumerate() {
+    for (i, t) in graph.all_triples().enumerate() {
         let s_label = node_label(&t.subject);
         let o_label = node_label(&t.object);
 

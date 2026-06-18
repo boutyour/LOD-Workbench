@@ -41,7 +41,7 @@ impl InspectionService {
         let mut class_distribution = BTreeMap::new();
         let mut property_distribution = BTreeMap::new();
 
-        for t in &graph.triples {
+        for t in graph.all_triples() {
             subjects.insert(format!("{:?}", t.subject));
             predicates.insert(t.predicate.clone());
             objects.insert(format!("{:?}", t.object));
@@ -61,7 +61,7 @@ impl InspectionService {
             .count();
         let properties = predicates.len();
         let report = InspectionReport {
-            triples: graph.triples.len(),
+            triples: graph.total_triples(),
             subjects: subjects.len(),
             predicates: predicates.len(),
             objects: objects.len(),

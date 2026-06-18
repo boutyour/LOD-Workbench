@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:ex="https://example.org/transport/"
+  xmlns:schema="https://schema.org/">
+  <schema:BusTrip rdf:about="https://example.org/transport/route-42">
+    <schema:name xml:lang="en">Airport Express</schema:name>
+    <schema:departureTime rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-06-17T08:30:00Z</schema:departureTime>
+    <schema:distance rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.4</schema:distance>
+    <schema:provider rdf:resource="https://example.org/transport/metro-transit"/>
+  </schema:BusTrip>
+
+  <schema:Organization rdf:about="https://example.org/transport/metro-transit">
+    <schema:name>Metro Transit</schema:name>
+  </schema:Organization>
+</rdf:RDF>

@@ -13,6 +13,15 @@ Current release line:
 - make the editor save/open flow reliable
 - keep the documentation aligned with the shipped behavior
 
+Supported features:
+
+- RDF inspection
+- RDF syntax validation
+- RDF conversion
+- CSV-to-RDF mapping
+- RDF graph visualization
+- basic web editing and report download flows
+
 ## `v0.1.0-beta.4`
 
 Target focus:
@@ -25,6 +34,17 @@ Target focus:
 - make graph export more readable and reliable
 - keep beta preview builds stable on GitHub Actions
 
+Supported features:
+
+- everything in `v0.1.0-beta.3`
+- live validation and preview refresh while typing
+- explicit syntax-only validation tab
+- dedicated SHACL report tab
+- SHACL shape editing in the web UI
+- improved graph export and SVG readability
+- RDF/XML import/export
+- TriG dataset import/export
+
 ## `v0.1.0-beta.5`
 
 Target focus:
@@ -33,6 +53,13 @@ Target focus:
 - harden open/save flows for edited text
 - tighten the docs for setup, troubleshooting, and release steps
 - expand regression tests for parser, validation, and service behavior
+
+Supported features:
+
+- everything in `v0.1.0-beta.4`
+- better documentation coverage
+- broader regression coverage
+- tighter CI and release automation
 
 ## `v0.1.0-rc.1`
 
@@ -44,6 +71,12 @@ Target focus:
 - complete the final documentation pass
 - confirm the CLI, API, and web UI behave consistently
 
+Supported features:
+
+- everything in `v0.1.0-beta.5`
+- release-candidate polish and bug fixes only
+- frozen user-facing behavior
+
 ## `v1.0.0`
 
 Target focus:
@@ -53,6 +86,13 @@ Target focus:
 - keep the CLI, API, and web UI aligned
 - ship the beta-tested packaging and preview workflow as stable
 - leave room for future RDF and SHACL adapter work
+
+Supported features:
+
+- everything in `v0.1.0-rc.1`
+- stable CLI, API, and web UI
+- documented RDF subset support
+- stable release packaging and tagging
 
 ## After `v1`
 

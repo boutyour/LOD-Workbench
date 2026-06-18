@@ -117,18 +117,24 @@ const FORMATS = [
   { value: 'turtle', label: 'Turtle' },
   { value: 'n-triples', label: 'N-Triples' },
   { value: 'json-ld', label: 'JSON-LD' },
+  { value: 'rdf/xml', label: 'RDF/XML' },
+  { value: 'trig', label: 'TriG' },
 ];
 
 const FORMAT_EXTENSIONS = {
   turtle: 'ttl',
   'n-triples': 'nt',
   'json-ld': 'jsonld',
+  'rdf/xml': 'rdf',
+  trig: 'trig',
 };
 
 function formatFromFilename(name) {
   const n = (name || '').toLowerCase();
   if (n.endsWith('.nt')) return 'n-triples';
   if (n.endsWith('.jsonld') || n.endsWith('.json')) return 'json-ld';
+  if (n.endsWith('.rdf') || n.endsWith('.xml')) return 'rdf/xml';
+  if (n.endsWith('.trig')) return 'trig';
   return 'turtle';
 }
 

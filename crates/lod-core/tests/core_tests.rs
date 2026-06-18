@@ -217,6 +217,60 @@ fn parses_ntriples_with_blank_node() {
 }
 
 #[test]
+fn parses_rdfxml() {
+    let rdfxml = r#"<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="https://example.org/">
+  <rdf:Description rdf:about="https://example.org/a">
+    <ex:b>c</ex:b>
+  </rdf:Description>
+</rdf:RDF>
+"#;
+    let graph = parser::parse_graph(rdfxml, RdfFormat::RdfXml).unwrap();
+    assert_eq!(graph.triples.len(), 1);
+    assert!(matches!(&graph.triples[0].subject, Node::Iri(iri) if iri == "https://example.org/a"));
+    assert!(matches!(&graph.triples[0].object, Node::Literal { value, .. } if value == "c"));
+}
+
+#[test]
+fn serializes_rdfxml_roundtrip() {
+    let ttl = "@prefix ex: <https://example.org/> .\nex:a ex:b \"c\" .\n";
+    let graph = parser::parse_graph(ttl, RdfFormat::Turtle).unwrap();
+    let rdfxml = parser::serialize_graph(&graph, RdfFormat::RdfXml).unwrap();
+    assert!(rdfxml.contains("rdf:RDF"));
+    let graph2 = parser::parse_graph(&rdfxml, RdfFormat::RdfXml).unwrap();
+    assert_eq!(graph2.triples.len(), 1);
+}
+
+#[test]
+fn parses_trig_named_graphs() {
+    let trig = r#"@prefix ex: <https://example.org/> .
+ex:g1 {
+  ex:a ex:b "c" .
+}
+"#;
+    let graph = parser::parse_graph(trig, RdfFormat::TriG).unwrap();
+    assert_eq!(graph.triples.len(), 0);
+    assert_eq!(graph.named_graphs.len(), 1);
+    let triples = graph.named_graphs.get("https://example.org/g1").unwrap();
+    assert_eq!(triples.len(), 1);
+}
+
+#[test]
+fn serializes_trig_named_graphs_roundtrip() {
+    let trig = r#"@prefix ex: <https://example.org/> .
+ex:g1 {
+  ex:a ex:b "c" .
+}
+"#;
+    let graph = parser::parse_graph(trig, RdfFormat::TriG).unwrap();
+    let trig_out = parser::serialize_graph(&graph, RdfFormat::TriG).unwrap();
+    assert!(trig_out.contains("{"));
+    let graph2 = parser::parse_graph(&trig_out, RdfFormat::TriG).unwrap();
+    assert_eq!(graph2.named_graphs.len(), 1);
+}
+
+#[test]
 fn parses_ntriples_typed_and_language_literals() {
     let nt = r#"<https://example.org/a> <https://example.org/name> "Ada"@en .
 <https://example.org/a> <https://example.org/count> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -311,7 +365,7 @@ ex:AnyShape a sh:NodeShape .
         .unwrap();
 
     assert!(report.conforms);
-    assert!(report.issues.iter().any(|i| i.message.contains("rudof-shacl")));
+    assert!(report.issues.is_empty());
     let _ = fs::remove_file(shapes_path);
 }
 
@@ -339,7 +393,7 @@ ex:AnyShape a sh:NodeShape .
         .unwrap();
 
     assert!(report.conforms);
-    assert!(report.issues.iter().any(|i| i.message.contains("inline SHACL shapes")));
+    assert!(report.issues.is_empty());
 }
 
 #[cfg(feature = "rudof-shacl")]
@@ -436,6 +490,7 @@ fn serializes_turtle() {
                 lang: None,
             },
         }],
+        named_graphs: BTreeMap::new(),
     };
     let turtle = parser::serialize_graph(&graph, RdfFormat::Turtle).unwrap();
     assert!(turtle.contains("@prefix ex: <https://example.org/> ."));
@@ -456,6 +511,7 @@ fn serializes_turtle_with_base() {
                 lang: None,
             },
         }],
+        named_graphs: BTreeMap::new(),
     };
     let turtle = parser::serialize_graph(&graph, RdfFormat::Turtle).unwrap();
     assert!(turtle.contains("@base <https://example.org/base/> ."));
@@ -484,6 +540,7 @@ fn serializes_lang_tagged_literal() {
                 lang: Some("en".into()),
             },
         }],
+        named_graphs: BTreeMap::new(),
     };
     let nt = parser::serialize_graph(&graph, RdfFormat::NTriples).unwrap();
     assert!(nt.contains("\"hello\"@en"));
@@ -503,6 +560,7 @@ fn serializes_typed_literal() {
                 lang: None,
             },
         }],
+        named_graphs: BTreeMap::new(),
     };
     let nt = parser::serialize_graph(&graph, RdfFormat::NTriples).unwrap();
     assert!(nt.contains("\"42\"^^<http://www.w3.org/2001/XMLSchema#integer>"));

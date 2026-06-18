@@ -331,6 +331,7 @@ fn split_shacl_table_row(line: &str) -> Option<Vec<String>> {
     Some(cells)
 }
 
+#[allow(dead_code)]
 fn strip_ansi_escape_sequences(input: &str) -> String {
     let mut out = String::with_capacity(input.len());
     let mut chars = input.chars().peekable();
@@ -487,6 +488,8 @@ fn to_rudof_data_format(format: RdfFormat) -> RudofDataFormat {
         RdfFormat::Turtle => RudofDataFormat::Turtle,
         RdfFormat::NTriples => RudofDataFormat::NTriples,
         RdfFormat::JsonLd => RudofDataFormat::JsonLd,
+        RdfFormat::RdfXml => RudofDataFormat::RdfXml,
+        RdfFormat::TriG => RudofDataFormat::TriG,
     }
 }
 
@@ -496,6 +499,8 @@ fn to_rudof_shacl_format(format: RdfFormat) -> ShaclFormat {
         RdfFormat::Turtle => ShaclFormat::Turtle,
         RdfFormat::NTriples => ShaclFormat::NTriples,
         RdfFormat::JsonLd => ShaclFormat::JsonLd,
+        RdfFormat::RdfXml => ShaclFormat::RdfXml,
+        RdfFormat::TriG => ShaclFormat::TriG,
     }
 }
 
@@ -505,7 +510,7 @@ fn is_http_iri(iri: &str) -> bool {
 
 fn validate_graph(graph: &LodGraph, issues: &mut Vec<ValidationIssue>, source: &str) {
     let mut seen = std::collections::BTreeSet::new();
-    for (idx, t) in graph.triples.iter().enumerate() {
+    for (idx, t) in graph.all_triples().enumerate() {
         // Each triple is checked independently so errors can be reported with
         // a simple line number that is useful in the UI.
         if !seen.insert(t.clone()) {

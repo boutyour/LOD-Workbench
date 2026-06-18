@@ -1611,6 +1611,9 @@ version = "0.1.0"
 dependencies = [
  "csv",
  "oxiri",
+ "oxrdf",
+ "oxrdfxml",
+ "oxttl",
  "rio_api",
  "rio_turtle",
  "rudof_lib",

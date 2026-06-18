@@ -42,11 +42,11 @@ impl VisualizationService {
         };
         let graph = parser::read_graph(&req.input_path, fmt)?;
 
-        let subjects: BTreeSet<String> = graph.triples.iter().map(|t| node_label(&t.subject)).collect();
+        let subjects: BTreeSet<String> = graph.all_triples().map(|t| node_label(&t.subject)).collect();
         let mut nodes: BTreeMap<String, NodeSpec> = BTreeMap::new();
         let mut edges = Vec::new();
 
-        for (i, t) in graph.triples.iter().enumerate() {
+        for (i, t) in graph.all_triples().enumerate() {
             let s_label = node_label(&t.subject);
             let o_label = node_label(&t.object);
 

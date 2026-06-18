@@ -13,22 +13,40 @@ This repository contains a beta-ready RDF workbench with:
 - a CLI interface: `lod`
 - a Web API: `lod-api` using Axum
 - a React/Vite web UI
-- sample RDF, CSV, YAML, and HTML report assets
+- sample RDF, CSV, YAML, SHACL, and HTML report assets
 
-The project is organized around a practical file-based workflow and supports a
-useful subset of Turtle, N-Triples, and JSON-LD for education, prototyping, and
-tool architecture demonstration. Full W3C RDF parsing and full SHACL
-validation can be integrated later through dedicated adapters.
+The project is organized around a practical file-based workflow and focuses on
+inspection, syntax validation, SHACL validation, conversion, visualization,
+and CSV-to-RDF mapping. The beta already includes live editing in the web app,
+separate syntax-only and SHACL validation views, richer sample datasets, and
+downloadable reports for common workflows.
+
+## Beta 4 Supported Features
+
+`v0.1.0-beta.4` focuses on a tighter editing and validation workflow:
+
+- live refresh while editing RDF or SHACL text
+- save back in the selected input format
+- syntax-only validation for the input graph and loaded shapes
+- dedicated SHACL validation tab and report view
+- improved RDF graph inspection for data and shapes
+- clearer validation diagnostics and report output
+- more readable graph export and SVG output
+- adjustable editors for RDF and SHACL content
+- sample datasets that exercise lists, bags, blank nodes, and typed literals
+- RDF/XML import/export
+- TriG import/export with named graphs
 
 For a more structured reference guide, see [docs/README.md](docs/README.md).
 
 ## At A Glance
 
-- Core RDF processing library for inspection, validation, conversion, mapping,
-  and visualization
+- Core RDF processing library for inspection, validation, SHACL reporting,
+  conversion, mapping, and visualization
 - Command-line interface for local workflows
 - Web API for integrating RDF features into other tools
-- React/Vite web client with live editing and visualization
+- React/Vite web client with live editing, split validation views, and
+  visualization
 - GitHub Actions automation for Rust checks and web builds
 
 ## Quick Start
@@ -63,7 +81,8 @@ Usage:
 
 Commands:
   inspect     Inspect RDF input
-  validate    Validate RDF input
+  validate    Validate RDF syntax
+  shacl       Validate RDF against SHACL shapes
   convert     Convert RDF output
   map         Map CSV to RDF
   visualize   Visualize RDF graph
@@ -72,25 +91,42 @@ Commands:
 
 ```text
 $ cargo test -p lod-core --tests
-test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
 ## Contents
 
-- [Repository structure](#repository-structure)
-- [Requirements](#requirements)
-- [Build](#build)
-- [Features](#features)
-- [CLI usage](#cli-usage)
-- [API usage](#api-usage)
-- [Web interface](#web-interface)
-- [Enhanced test coverage](#enhanced-test-coverage)
-- [Design patterns used](#design-patterns-used)
-- [Roadmap](#roadmap)
-- [Current Status](#current-status)
-- [Important limitations](#important-limitations)
-- [Author & Contact](#author--contact)
-- [Project Docs](#project-docs)
+- [LOD Workbench RS](#lod-workbench-rs)
+  - [Beta 4 Supported Features](#beta-4-supported-features)
+  - [At A Glance](#at-a-glance)
+  - [Quick Start](#quick-start)
+  - [Screenshots](#screenshots)
+  - [Command Line Output](#command-line-output)
+  - [Contents](#contents)
+  - [Repository structure](#repository-structure)
+  - [Requirements](#requirements)
+  - [Build](#build)
+  - [Features](#features)
+    - [Core RDF workflow](#core-rdf-workflow)
+    - [Beta 4 feature set](#beta-4-feature-set)
+    - [Supported RDF syntax](#supported-rdf-syntax)
+    - [Web application](#web-application)
+    - [API](#api)
+    - [Tooling and release](#tooling-and-release)
+  - [CLI usage](#cli-usage)
+    - [Inspect RDF](#inspect-rdf)
+    - [Convert RDF](#convert-rdf)
+    - [Validate RDF syntax and IRI quality](#validate-rdf-syntax-and-iri-quality)
+    - [Map CSV to RDF](#map-csv-to-rdf)
+    - [Visualize RDF as HTML](#visualize-rdf-as-html)
+  - [API usage](#api-usage)
+  - [Web interface](#web-interface)
+  - [Enhanced test coverage](#enhanced-test-coverage)
+  - [Design patterns used](#design-patterns-used)
+  - [Roadmap](#roadmap)
+  - [Current Status](#current-status)
+  - [Project Docs](#project-docs)
+  - [Author \& Contact](#author--contact)
 
 ---
 
@@ -151,10 +187,26 @@ make lint     # format + clippy
 ### Core RDF workflow
 
 - Inspect RDF from files or pasted text
+- Inspect input data and loaded SHACL shapes side by side
 - Validate syntax and IRI quality
-- Convert between Turtle, N-Triples, and JSON-LD
+- Validate RDF data against SHACL shapes
+- Convert between Turtle, N-Triples, RDF/XML, TriG, and JSON-LD
 - Map CSV data to RDF
 - Render RDF graphs for browser viewing or SVG export
+- Open, edit, and save RDF content directly from the web editor
+- Generate syntax and SHACL reports in JSON, text, or HTML
+
+### Beta 4 feature set
+
+- live validation and preview refresh while typing
+- explicit syntax-only validation tab
+- dedicated SHACL report tab
+- SHACL shape editing in the web UI
+- improved inspection for RDF input and loaded shapes
+- adjustable editor panels
+- richer sample RDF fixtures for testing RDF syntax features
+- RDF/XML support for legacy RDF content
+- TriG support for multi-graph datasets and named graphs
 
 ### Supported RDF syntax
 
@@ -166,8 +218,10 @@ make lint     # format + clippy
 ### Web application
 
 - Live text editing with open/save support
-- Inspect, validate, convert, and visualize tabs
+- Separate Inspect, Validate, SHACL, Convert, and Visualize tabs
+- Syntax-only validation in one tab and SHACL reporting in another
 - Graph pan, zoom, drag, and SVG export
+- Adjustable RDF and SHACL editors with real-time refresh
 - Responsive layout with clear loading and error states
 
 ### API
@@ -175,6 +229,7 @@ make lint     # format + clippy
 - `GET /api/health`
 - `POST /api/inspect-text`
 - `POST /api/validate-text`
+- `POST /api/validate-text-detail`
 - `POST /api/convert-text`
 - `POST /api/visualize-text`
 
@@ -213,6 +268,12 @@ through Rudof:
 ```bash
 cargo run -p lod --features lod-core/rudof-shacl -- validate \
   examples/data.ttl examples/shapes.ttl
+```
+
+For a dedicated SHACL report from the CLI, use the `shacl` subcommand:
+
+```bash
+cargo run -p lod -- shacl examples/data.ttl examples/shapes.ttl
 ```
 
 ### Map CSV to RDF
@@ -265,9 +326,12 @@ npm run dev
 Open <http://127.0.0.1:5173> in your browser. The web interface focuses on:
 
 - one editor for live RDF input
-- one tab per task: inspect, validate, convert, and visualize
+- one editor for SHACL shapes
+- one tab per task: inspect, validate, SHACL, convert, and visualize
+- syntax-only validation in one tab and SHACL constraint reporting in another
 - a graph view with drag, zoom, and SVG export
 - save/download actions for the current text and converted output
+- immediate refresh while typing
 - responsive behavior for desktop and mobile screens
 
 ## Enhanced test coverage
@@ -305,23 +369,23 @@ The Rust implementation follows pattern-equivalent idioms:
 ## Roadmap
 
 The beta-to-release plan lives in [docs/roadmap.md](docs/roadmap.md).
+Each version entry there includes the features supported or planned for that
+release line, so you can quickly compare what changes from beta to beta and
+from beta to `v1.0.0`.
 
 ---
 
 ## Current Status
 
 - Core library: stable for the supported RDF subset
-- CLI: functional
-- API: functional
-- Web UI: functional and beta-ready
+- CLI: functional with inspect, validate, SHACL, convert, map, and visualize commands
+- API: functional with separate syntax validation and SHACL report endpoints
+- Web UI: functional, beta-ready, and live-updating
 - Tests: passing
 - Release readiness: beta
 
 ---
 
-## Important limitations
-
-This first version intentionally implements a compact RDF parser to keep the repository self-contained and understandable. It is suitable for controlled Turtle/N-Triples examples and educational workflows. For production-grade RDF/JSON-LD/SHACL compliance, replace the parser and validator internals with adapters to mature RDF crates.
 
 ## Project Docs
 

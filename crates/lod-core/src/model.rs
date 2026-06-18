@@ -28,6 +28,20 @@ pub struct LodGraph {
     pub base: Option<String>,
     pub prefixes: BTreeMap<String, String>,
     pub triples: Vec<Triple>,
+    #[serde(default)]
+    pub named_graphs: BTreeMap<String, Vec<Triple>>,
+}
+
+impl LodGraph {
+    pub fn all_triples(&self) -> impl Iterator<Item = &Triple> {
+        self.triples
+            .iter()
+            .chain(self.named_graphs.values().flat_map(|triples| triples.iter()))
+    }
+
+    pub fn total_triples(&self) -> usize {
+        self.triples.len() + self.named_graphs.values().map(Vec::len).sum::<usize>()
+    }
 }
 
 /// Node metadata tailored for the browser graph renderer.
