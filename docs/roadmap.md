@@ -17,10 +17,10 @@ Current release line:
 
 Target focus:
 
-- auto-refresh the editor view on text changes
-- save the current text in the selected input format
-- improve parser coverage for the supported Turtle subset
-- add better parser support for lists and bags
+- stabilize the auto-refresh editor flow on text changes
+- keep saving in the selected input format reliable
+- polish parser coverage for the supported Turtle subset
+- keep lists and bags readable in the graph view
 - make validation errors clearer and easier to act on
 - make graph export more readable and reliable
 - keep beta preview builds stable on GitHub Actions
@@ -32,7 +32,7 @@ Target focus:
 - reduce noisy warnings and CI friction
 - harden open/save flows for edited text
 - tighten the docs for setup, troubleshooting, and release steps
-- expand regression tests for parser and service behavior
+- expand regression tests for parser, validation, and service behavior
 
 ## `v0.1.0-rc.1`
 
