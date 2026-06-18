@@ -297,22 +297,9 @@ The Rust implementation follows pattern-equivalent idioms:
 
 ## Roadmap
 
-### V1.1
-
-- integrate a full RDF parser adapter, preferably Sophia or Oxigraph
-- integrate full SHACL through Rudof or another SHACL engine
-- add RDF/XML and complete JSON-LD support
-- add RDF diff and normalization commands
-
-### V2
-
-- job-based web processing
-- upload/download file management
-- persistent project workspace
-- SPARQL support
-- quality scoring
-- repair assistant
-- plugin registry
+- The milestone plan from beta to `v1.0.0` lives in [docs/roadmap.md](docs/roadmap.md).
+- It covers the beta line, the release-candidate step, and the stable `v1`
+  target.
 
 ---
 
@@ -340,6 +327,7 @@ links to the focused pages below:
 - [CLI Reference](docs/cli.md)
 - [HTTP API](docs/api.md)
 - [Web UI](docs/web.md)
+- [Roadmap](docs/roadmap.md)
 - [Release](docs/release.md)
 - [Branch Protection](docs/branch-protection.md)
 - [Troubleshooting](docs/troubleshooting.md)

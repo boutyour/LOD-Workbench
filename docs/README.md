@@ -10,6 +10,7 @@ quick navigation.
 - [CLI Reference](cli.md)
 - [HTTP API](api.md)
 - [Web UI](web.md)
+- [Roadmap](roadmap.md)
 - [Release](release.md)
 - [Branch Protection](branch-protection.md)
 - [Troubleshooting](troubleshooting.md)
