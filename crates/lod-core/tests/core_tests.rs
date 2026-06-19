@@ -418,16 +418,22 @@ ex:PersonShape a sh:NodeShape ;
     ] .
 "#,
     );
+    let shapes_content = fs::read_to_string(&shapes_path).unwrap();
     let svc = ValidationService;
     let report = svc
-        .validate_content(ttl, RdfFormat::Turtle, Some(shapes_path.clone()), None)
+        .validate_content_with_shapes_report(
+            ttl,
+            RdfFormat::Turtle,
+            Some(&shapes_content),
+            Some(RdfFormat::Turtle),
+            None,
+            Some(ValidationReportFormat::Json),
+        )
         .unwrap();
 
     assert!(!report.conforms);
-    assert!(report
-        .issues
-        .iter()
-        .any(|i| i.message.contains("SHACL validation failed")));
+    assert!(report.issues.iter().any(|i| i.source.as_deref() == Some("shacl")));
+    assert!(report.issues.iter().any(|i| i.severity == "Violation"));
     let _ = fs::remove_file(shapes_path);
 }
 
